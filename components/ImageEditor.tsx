@@ -66,7 +66,7 @@ export const ImageEditor: React.FC = () => {
             
             <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="cursor-pointer p-6 border-2 border-dashed border-gray-600 rounded-lg text-center hover:border-indigo-500 hover:bg-gray-700/50 transition-colors"
+                className="cursor-pointer p-6 border-2 border-dashed border-zinc-600 rounded-lg text-center hover:border-indigo-500 hover:bg-zinc-800/50 transition-colors"
             >
                 <input
                     type="file"
@@ -77,8 +77,8 @@ export const ImageEditor: React.FC = () => {
                     disabled={isLoading}
                 />
                 <div className="flex flex-col items-center">
-                    <ArrowUpTrayIcon className="w-10 h-10 text-gray-400 mb-2"/>
-                    <p className="text-gray-300">
+                    <ArrowUpTrayIcon className="w-10 h-10 text-zinc-400 mb-2"/>
+                    <p className="text-zinc-300">
                         {imageFile ? `Selected: ${imageFile.name}` : 'Click to upload an image (PNG, JPG, WEBP < 4MB)'}
                     </p>
                 </div>
@@ -89,13 +89,13 @@ export const ImageEditor: React.FC = () => {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter editing instructions (e.g., 'make the sky purple')..."
-                    className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-24 resize-none"
+                    className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-24 resize-none"
                     disabled={isLoading || !originalImage}
                 />
                 <button
                     onClick={handleEdit}
                     disabled={isLoading || !originalImage}
-                    className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                     {isLoading ? 'Editing...' : 'Apply Edit'}
                 </button>
@@ -105,24 +105,24 @@ export const ImageEditor: React.FC = () => {
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col items-center">
-                    <h3 className="text-lg font-semibold mb-2 text-gray-400">Original</h3>
-                    <div className="w-full aspect-square bg-gray-900/50 rounded-lg flex items-center justify-center border border-dashed border-gray-600">
+                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">Original</h3>
+                    <div className="w-full aspect-square bg-zinc-900/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
                         {originalImage ? (
                             <img src={originalImage} alt="Original" className="rounded-lg max-w-full max-h-full object-contain" />
                         ) : (
-                            <p className="text-gray-500">Upload an image to start</p>
+                            <p className="text-zinc-500">Upload an image to start</p>
                         )}
                     </div>
                 </div>
                 <div className="flex flex-col items-center">
-                    <h3 className="text-lg font-semibold mb-2 text-gray-400">Edited</h3>
-                     <div className="w-full aspect-square bg-gray-900/50 rounded-lg flex items-center justify-center border border-dashed border-gray-600">
+                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">Edited</h3>
+                     <div className="w-full aspect-square bg-zinc-900/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
                         {isLoading ? (
                             <LoadingSpinner message="Applying edits..." />
                         ) : editedImage ? (
                             <img src={editedImage} alt="Edited" className="rounded-lg max-w-full max-h-full object-contain" />
                         ) : (
-                            <p className="text-gray-500">Your edited image will appear here</p>
+                            <p className="text-zinc-500">Your edited image will appear here</p>
                         )}
                     </div>
                 </div>

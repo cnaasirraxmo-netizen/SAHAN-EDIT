@@ -70,8 +70,8 @@ export const VideoGenerator: React.FC = () => {
                 imagePart = await fileToGenerativePart(imageFile);
             }
             
-            const videoUrl = await generateVideo(prompt, imagePart, aspectRatio, resolution, setProgressMessage);
-            setGeneratedVideo(videoUrl);
+            const { url } = await generateVideo(prompt, imagePart, aspectRatio, resolution, setProgressMessage);
+            setGeneratedVideo(url);
             setProgressMessage('Video ready!');
         } catch (err) {
             let errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
@@ -99,12 +99,12 @@ export const VideoGenerator: React.FC = () => {
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder="Describe the video you want to create..."
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-36 resize-none"
+                        className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-36 resize-none"
                         disabled={isLoading}
                     />
                     <div 
                         onClick={() => fileInputRef.current?.click()}
-                        className="cursor-pointer p-4 border-2 border-dashed border-gray-600 rounded-lg text-center hover:border-indigo-500 hover:bg-gray-700/50 transition-colors"
+                        className="cursor-pointer p-4 border-2 border-dashed border-zinc-600 rounded-lg text-center hover:border-indigo-500 hover:bg-zinc-800/50 transition-colors"
                     >
                         <input
                             type="file"
@@ -115,8 +115,8 @@ export const VideoGenerator: React.FC = () => {
                             disabled={isLoading}
                         />
                         <div className="flex flex-col items-center">
-                            <ArrowUpTrayIcon className="w-8 h-8 text-gray-400 mb-2"/>
-                            <p className="text-gray-300 text-sm">
+                            <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mb-2"/>
+                            <p className="text-zinc-300 text-sm">
                                 {imageFile ? `Image: ${imageFile.name}` : 'Add an optional starting image'}
                             </p>
                         </div>
@@ -124,15 +124,15 @@ export const VideoGenerator: React.FC = () => {
 
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
-                             <label htmlFor="aspect-ratio-vid" className="block text-sm font-medium text-gray-300 mb-1">Aspect Ratio</label>
-                            <select id="aspect-ratio-vid" value={aspectRatio} onChange={e => setAspectRatio(e.target.value as VideoAspectRatio)} className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" disabled={isLoading}>
+                             <label htmlFor="aspect-ratio-vid" className="block text-sm font-medium text-zinc-300 mb-1">Aspect Ratio</label>
+                            <select id="aspect-ratio-vid" value={aspectRatio} onChange={e => setAspectRatio(e.target.value as VideoAspectRatio)} className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" disabled={isLoading}>
                                 <option value="16:9">Landscape (16:9)</option>
                                 <option value="9:16">Portrait (9:16)</option>
                             </select>
                         </div>
                         <div className="flex-1">
-                            <label htmlFor="resolution" className="block text-sm font-medium text-gray-300 mb-1">Resolution</label>
-                            <select id="resolution" value={resolution} onChange={e => setResolution(e.target.value as VideoResolution)} className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" disabled={isLoading}>
+                            <label htmlFor="resolution" className="block text-sm font-medium text-zinc-300 mb-1">Resolution</label>
+                            <select id="resolution" value={resolution} onChange={e => setResolution(e.target.value as VideoResolution)} className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" disabled={isLoading}>
                                 <option value="720p">HD (720p)</option>
                                 <option value="1080p">Full HD (1080p)</option>
                             </select>
@@ -141,12 +141,12 @@ export const VideoGenerator: React.FC = () => {
                      <button
                         onClick={handleGenerate}
                         disabled={isLoading}
-                        className="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isLoading ? 'Generating Video...' : 'Generate Video'}
                     </button>
                 </div>
-                <div className="min-h-[300px] bg-gray-900/50 rounded-lg flex flex-col items-center justify-center border border-dashed border-gray-600 p-4">
+                <div className="min-h-[300px] bg-zinc-900/50 rounded-lg flex flex-col items-center justify-center border border-dashed border-zinc-700 p-4">
                     {isLoading ? (
                         <LoadingSpinner message={progressMessage} />
                     ) : generatedVideo ? (
@@ -154,7 +154,7 @@ export const VideoGenerator: React.FC = () => {
                     ) : imagePreview ? (
                         <img src={imagePreview} alt="Preview" className="rounded-lg max-w-full max-h-[40vh] object-contain" />
                     ) : (
-                        <p className="text-gray-500 text-center">Your generated video or image preview will appear here.</p>
+                        <p className="text-zinc-500 text-center">Your generated video or image preview will appear here.</p>
                     )}
                 </div>
             </div>

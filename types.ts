@@ -1,8 +1,10 @@
-export enum CreationMode {
-  IMAGE_GEN = 'IMAGE_GEN',
+export enum Page {
+  HOME = 'HOME',
+  LOGO_GEN = 'LOGO_GEN',
   IMAGE_EDIT = 'IMAGE_EDIT',
   VIDEO_GEN = 'VIDEO_GEN',
   VIDEO_EDIT = 'VIDEO_EDIT',
+  SETTINGS = 'SETTINGS',
 }
 
 export type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";

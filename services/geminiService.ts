@@ -1,4 +1,4 @@
-import { GoogleGenAI, Modality, GenerateContentResponse, GenerateImagesResponse, GenerateVideosOperation, GetVideosOperationResponse } from "@google/genai";
+import { GoogleGenAI, Modality, GenerateContentResponse, GenerateImagesResponse, GenerateVideosOperation, GetVideosOperationResponse, Video } from "@google/genai";
 import { AspectRatio, VideoAspectRatio, VideoResolution } from "../types";
 
 const getGenAIClient = () => {
@@ -6,6 +6,7 @@ const getGenAIClient = () => {
     if (!apiKey) {
         throw new Error("API_KEY environment variable is not set.");
     }
+    // Create a new client for each request to ensure the latest API key is used.
     return new GoogleGenAI({ apiKey });
 }
 
@@ -57,6 +58,42 @@ export const editImage = async (prompt: string, imageBase64: string, mimeType: s
     throw new Error("Image editing failed or returned no image data.");
 };
 
+const pollAndFetchVideo = async (operation: GenerateVideosOperation, ai: GoogleGenAI, onProgress: (message: string) => void): Promise<{ operation: GetVideosOperationResponse, url: string }> => {
+    let getOperationResponse: GetVideosOperationResponse = operation;
+    
+    while (!getOperationResponse.done) {
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        onProgress("Checking video status...");
+        try {
+          getOperationResponse = await ai.operations.getVideosOperation({ operation });
+        } catch (e) {
+          console.error("Error polling video status:", e);
+          onProgress("Error checking status. Retrying...");
+        }
+    }
+
+    onProgress("Video processing complete. Fetching video data...");
+    
+    const downloadLink = getOperationResponse.response?.generatedVideos?.[0]?.video?.uri;
+
+    if (!downloadLink) {
+        throw new Error("Video generation completed but no download link was found.");
+    }
+    
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        throw new Error("API_KEY environment variable is not set for video download.");
+    }
+    const videoResponse = await fetch(`${downloadLink}&key=${apiKey}`);
+    if (!videoResponse.ok) {
+        throw new Error(`Failed to download video: ${videoResponse.statusText}`);
+    }
+
+    const videoBlob = await videoResponse.blob();
+    const url = URL.createObjectURL(videoBlob);
+    return { operation: getOperationResponse, url };
+};
+
 
 export const generateVideo = async (
     prompt: string,
@@ -64,7 +101,7 @@ export const generateVideo = async (
     aspectRatio: VideoAspectRatio,
     resolution: VideoResolution,
     onProgress: (message: string) => void
-): Promise<string> => {
+): Promise<{ operation: GetVideosOperationResponse, url: string }> => {
     const ai = getGenAIClient();
     onProgress("Initializing video generation...");
 
@@ -81,33 +118,33 @@ export const generateVideo = async (
     
     onProgress("Video generation started. This may take several minutes...");
     
-    let getOperationResponse: GetVideosOperationResponse = operation;
+    return pollAndFetchVideo(operation, ai, onProgress);
+};
 
-    while (!getOperationResponse.done) {
-        await new Promise(resolve => setTimeout(resolve, 10000));
-        onProgress("Checking video status...");
-        try {
-          getOperationResponse = await ai.operations.getVideosOperation({ operation: operation });
-        } catch (e) {
-          console.error("Error polling video status:", e);
-          onProgress("Error checking status. Retrying...");
+export const extendVideo = async (
+    prompt: string,
+    previousVideo: Video,
+    onProgress: (message: string) => void
+): Promise<{ operation: GetVideosOperationResponse, url: string }> => {
+    const ai = getGenAIClient();
+    onProgress("Initializing video extension...");
+
+    if (previousVideo.resolution !== '720p') {
+        throw new Error("Only 720p videos can be extended.");
+    }
+
+    let operation: GenerateVideosOperation = await ai.models.generateVideos({
+        model: 'veo-3.1-generate-preview',
+        prompt,
+        video: previousVideo,
+        config: {
+            numberOfVideos: 1,
+            resolution: '720p',
+            aspectRatio: previousVideo.aspectRatio,
         }
-    }
-
-    onProgress("Video processing complete. Fetching video data...");
+    });
     
-    const downloadLink = getOperationResponse.response?.generatedVideos?.[0]?.video?.uri;
+    onProgress("Video extension started. This may take several minutes...");
 
-    if (!downloadLink) {
-        throw new Error("Video generation completed but no download link was found.");
-    }
-    
-    const apiKey = process.env.API_KEY;
-    const videoResponse = await fetch(`${downloadLink}&key=${apiKey}`);
-    if (!videoResponse.ok) {
-        throw new Error(`Failed to download video: ${videoResponse.statusText}`);
-    }
-
-    const videoBlob = await videoResponse.blob();
-    return URL.createObjectURL(videoBlob);
+    return pollAndFetchVideo(operation, ai, onProgress);
 };
