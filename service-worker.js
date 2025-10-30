@@ -1,8 +1,9 @@
-const CACHE_NAME = 'sahan-edit-cache-v1';
+const CACHE_NAME = 'sahan-edit-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/vite.svg',
   '/index.tsx',
   '/App.tsx',
   '/types.ts',
@@ -24,7 +25,16 @@ const urlsToCache = [
   '/components/common/ComingSoon.tsx',
   '/components/LogoEditor.tsx',
   '/components/VideoPromptGenerator.tsx',
-  'https://cdn.tailwindcss.com'
+  'https://cdn.tailwindcss.com',
+  // Add icons for PWA
+  '/icons/icon-72x72.png',
+  '/icons/icon-96x96.png',
+  '/icons/icon-128x128.png',
+  '/icons/icon-144x144.png',
+  '/icons/icon-152x152.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-384x384.png',
+  '/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -41,6 +51,14 @@ self.addEventListener('fetch', (event) => {
   // We only want to cache GET requests.
   if (event.request.method !== 'GET') {
     return;
+  }
+
+  // Do not cache API requests, especially those with API keys.
+  // This prevents caching one-time video download links.
+  if (event.request.url.includes('generativelanguage.googleapis.com')) {
+      // Respond from network only, do not cache.
+      event.respondWith(fetch(event.request));
+      return;
   }
 
   event.respondWith(
