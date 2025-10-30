@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { editImage } from '../services/geminiService';
 import { LoadingSpinner } from './common/LoadingSpinner';
-import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeType: string }> => {
     const base64 = await new Promise<string>((resolve, reject) => {
@@ -58,6 +58,18 @@ export const ImageEditor: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleDownload = () => {
+        if (!editedImage) return;
+        const link = document.createElement('a');
+        link.href = editedImage;
+        const originalName = imageFile?.name.split('.').slice(0, -1).join('.') || 'edited-image';
+        const extension = editedImage.split(';')[0].split('/')[1] || 'jpeg';
+        link.download = `${originalName}-edited.${extension}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -127,6 +139,18 @@ export const ImageEditor: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {editedImage && !isLoading && (
+                <div className="flex justify-center mt-4">
+                    <button
+                        onClick={handleDownload}
+                        className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center gap-2"
+                    >
+                        <ArrowDownTrayIcon className="w-5 h-5" />
+                        Download Edited Image
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

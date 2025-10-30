@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../types';
-import { SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, ArrowRightIcon, SwatchIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, ArrowRightIcon, SwatchIcon, ClipboardDocumentListIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 interface HomeProps {
     setPage: (page: Page) => void;
@@ -56,6 +56,12 @@ export const Home: React.FC<HomeProps> = ({ setPage }) => {
                     title="Edit Logo"
                     description="Upload your logo to generate new variations and styles."
                     onClick={() => setPage(Page.LOGO_EDIT)}
+                />
+                 <ToolCard
+                    icon={<PhotoIcon className="w-6 h-6" />}
+                    title="Generate Image"
+                    description="Create stunning images from text with various artistic styles."
+                    onClick={() => setPage(Page.IMAGE_GEN)}
                 />
                 <ToolCard
                     icon={<PaintBrushIcon className="w-6 h-6" />}

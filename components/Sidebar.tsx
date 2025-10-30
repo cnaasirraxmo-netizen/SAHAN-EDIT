@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../types';
-import { HomeIcon, SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, SwatchIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, SwatchIcon, ClipboardDocumentListIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
     page: Page;
@@ -34,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ page, setPage, isOpen, setIsOp
         { id: Page.HOME, text: 'Home', icon: <HomeIcon /> },
         { id: Page.LOGO_GEN, text: 'Generate Logo', icon: <SparklesIcon /> },
         { id: Page.LOGO_EDIT, text: 'Edit Logo', icon: <SwatchIcon /> },
+        { id: Page.IMAGE_GEN, text: 'Generate Image', icon: <PhotoIcon /> },
         { id: Page.IMAGE_EDIT, text: 'Edit Image', icon: <PaintBrushIcon /> },
         { id: Page.VIDEO_PROMPT_GEN, text: 'Muuqaal Diyaarin', icon: <ClipboardDocumentListIcon /> },
         { id: Page.VIDEO_GEN, text: 'Generate Video', icon: <VideoCameraIcon /> },

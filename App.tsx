@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Home } from './components/Home';
 import { GenerateLogo } from './components/ImageGenerator';
+import { CinematicImageGenerator } from './components/CinematicImageGenerator';
 import { ImageEditor } from './components/ImageEditor';
 import { LogoEditor } from './components/LogoEditor';
 import { VideoGenerator } from './components/VideoGenerator';
@@ -22,6 +23,8 @@ const App: React.FC = () => {
         return <Home setPage={setPage} />;
       case Page.LOGO_GEN:
         return <GenerateLogo />;
+      case Page.IMAGE_GEN:
+        return <CinematicImageGenerator />;
       case Page.IMAGE_EDIT:
         return <ImageEditor />;
       case Page.LOGO_EDIT:

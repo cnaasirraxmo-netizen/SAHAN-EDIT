@@ -10,6 +10,7 @@ const urlsToCache = [
   '/components/common/LoadingSpinner.tsx',
   '/components/common/ApiKeySelector.tsx',
   '/components/ImageGenerator.tsx',
+  '/components/CinematicImageGenerator.tsx',
   '/components/ImageEditor.tsx',
   '/components/VideoGenerator.tsx',
   '/components/VideoEditor.tsx',
