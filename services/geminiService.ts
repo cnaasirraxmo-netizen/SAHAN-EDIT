@@ -1,10 +1,26 @@
 import { GoogleGenAI, Modality, GenerateContentResponse, GenerateImagesResponse, GenerateVideosOperation, GetVideosOperationResponse, Video } from "@google/genai";
 import { AspectRatio, VideoAspectRatio, VideoResolution } from "../types";
 
+// --- START: API Key Management ---
+const API_KEY_STORAGE_KEY = 'sahan-edit-api-key';
+
+export const saveApiKey = (apiKey: string) => {
+    if (apiKey) {
+        localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+    } else {
+        localStorage.removeItem(API_KEY_STORAGE_KEY);
+    }
+};
+
+export const getApiKey = (): string | null => {
+    return localStorage.getItem(API_KEY_STORAGE_KEY);
+};
+// --- END: API Key Management ---
+
 const getGenAIClient = () => {
-    const apiKey = process.env.API_KEY;
+    const apiKey = getApiKey();
     if (!apiKey) {
-        throw new Error("API_KEY environment variable is not set.");
+        throw new Error("API Key not found. Please set your API key in the Settings page.");
     }
     // Create a new client for each request to ensure the latest API key is used.
     return new GoogleGenAI({ apiKey });
@@ -102,9 +118,9 @@ const pollAndFetchVideo = async (operation: GenerateVideosOperation, ai: GoogleG
         throw new Error("Video generation completed but no download link was found.");
     }
     
-    const apiKey = process.env.API_KEY;
+    const apiKey = getApiKey();
     if (!apiKey) {
-        throw new Error("API_KEY environment variable is not set for video download.");
+        throw new Error("API key not found for video download. Please set your API key in the Settings page.");
     }
     const videoResponse = await fetch(`${downloadLink}&key=${apiKey}`);
     if (!videoResponse.ok) {
