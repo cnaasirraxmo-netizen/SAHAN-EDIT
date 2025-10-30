@@ -45,73 +45,114 @@ const getGenAIClient = () => {
     return new GoogleGenAI({ apiKey });
 }
 
-export const generateImage = async (prompt: string, aspectRatio: AspectRatio): Promise<string> => {
-    const ai = getGenAIClient();
-    const response: GenerateImagesResponse = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt,
-        config: {
-            numberOfImages: 1,
-            outputMimeType: 'image/jpeg',
-            aspectRatio,
-        },
-    });
+// --- START: API Call Retry Logic ---
+const MAX_RETRIES = 3;
+const INITIAL_DELAY_MS = 1000;
 
-    if (response.generatedImages && response.generatedImages.length > 0) {
-        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-        return `data:image/jpeg;base64,${base64ImageBytes}`;
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function withRetry<T>(apiCall: () => Promise<T>): Promise<T> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        try {
+            return await apiCall();
+        } catch (err) {
+            lastError = err as Error;
+            // Check for the specific overload/unavailable error messages from Gemini API
+            if (err instanceof Error && (err.message.includes('overloaded') || err.message.includes('UNAVAILABLE'))) {
+                if (attempt < MAX_RETRIES - 1) {
+                    // Exponential backoff with jitter
+                    const delay = INITIAL_DELAY_MS * Math.pow(2, attempt) + Math.random() * 1000;
+                    console.log(`Model overloaded. Retrying in ${Math.round(delay / 1000)}s... (Attempt ${attempt + 1}/${MAX_RETRIES})`);
+                    await sleep(delay);
+                }
+            } else {
+                // For other errors (e.g., invalid API key, bad request), fail immediately
+                throw err;
+            }
+        }
     }
-    throw new Error("Image generation failed or returned no images.");
+    // If all retries failed, throw a user-friendly error
+    console.error("API call failed after multiple retries.", lastError);
+    throw new Error(`The model is currently overloaded. Please try again later. (Failed after ${MAX_RETRIES} attempts)`);
+}
+// --- END: API Call Retry Logic ---
+
+
+export const generateImage = async (prompt: string, aspectRatio: AspectRatio): Promise<string> => {
+    return withRetry(async () => {
+        const ai = getGenAIClient();
+        const response: GenerateImagesResponse = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt,
+            config: {
+                numberOfImages: 1,
+                outputMimeType: 'image/jpeg',
+                aspectRatio,
+            },
+        });
+
+        if (response.generatedImages && response.generatedImages.length > 0) {
+            const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+            return `data:image/jpeg;base64,${base64ImageBytes}`;
+        }
+        throw new Error("Image generation failed or returned no images.");
+    });
 };
 
 export const editImage = async (prompt: string, imageBase64: string, mimeType: string): Promise<string> => {
-    const ai = getGenAIClient();
-    const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-            parts: [
-                {
-                    inlineData: {
-                        data: imageBase64,
-                        mimeType,
+    return withRetry(async () => {
+        const ai = getGenAIClient();
+        const response: GenerateContentResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [
+                    {
+                        inlineData: {
+                            data: imageBase64,
+                            mimeType,
+                        },
                     },
-                },
-                { text: prompt },
-            ],
-        },
-        config: {
-            responseModalities: [Modality.IMAGE],
-        },
-    });
+                    { text: prompt },
+                ],
+            },
+            config: {
+                responseModalities: [Modality.IMAGE],
+            },
+        });
 
-    for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-            const base64ImageBytes: string = part.inlineData.data;
-            return `data:${part.inlineData.mimeType};base64,${base64ImageBytes}`;
+        for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+                const base64ImageBytes: string = part.inlineData.data;
+                return `data:${part.inlineData.mimeType};base64,${base64ImageBytes}`;
+            }
         }
-    }
-    throw new Error("Image editing failed or returned no image data.");
+        throw new Error("Image editing failed or returned no image data.");
+    });
 };
 
 export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'YouTube'): Promise<string> => {
-    const ai = getGenAIClient();
+    return withRetry(async () => {
+        const ai = getGenAIClient();
 
-    let systemInstruction = '';
-    if (platform === 'TikTok') {
-        systemInstruction = `You are a creative assistant specializing in short-form video content. Your task is to generate a concise, engaging script for a TikTok video. The script should be easily readable in under 60 seconds and formatted with clear visual cues and spoken parts. The language must be Somali.`;
-    } else if (platform === 'YouTube') {
-        systemInstruction = `You are an expert scriptwriter for long-form YouTube content. Your task is to generate a detailed, well-structured video script that is suitable for a 13+ minute video. The script must include an introduction, a main body with multiple sections, and a conclusion with a call to action. Include suggestions for visuals and b-roll. The language must be Somali.`;
-    }
-    
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `Create a video script about the following topic: "${topic}"`,
-        config: {
-            systemInstruction,
-        },
+        let systemInstruction = '';
+        if (platform === 'TikTok') {
+            systemInstruction = `You are a creative assistant specializing in short-form video content. Your task is to generate a concise, engaging script for a TikTok video. The script should be easily readable in under 60 seconds and formatted with clear visual cues and spoken parts. The language must be Somali.`;
+        } else if (platform === 'YouTube') {
+            systemInstruction = `You are an expert scriptwriter for long-form YouTube content. Your task is to generate a detailed, well-structured video script that is suitable for a 13+ minute video. The script must include an introduction, a main body with multiple sections, and a conclusion with a call to action. Include suggestions for visuals and b-roll. The language must be Somali.`;
+        }
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: `Create a video script about the following topic: "${topic}"`,
+            config: {
+                systemInstruction,
+            },
+        });
+
+        return response.text;
     });
-
-    return response.text;
 };
 
 
@@ -119,14 +160,11 @@ const pollAndFetchVideo = async (operation: GenerateVideosOperation, ai: GoogleG
     let getOperationResponse: GetVideosOperationResponse = operation;
     
     while (!getOperationResponse.done) {
-        await new Promise(resolve => setTimeout(resolve, 10000));
+        await sleep(10000); // Wait 10 seconds between polls
         onProgress("Checking video status...");
-        try {
-          getOperationResponse = await ai.operations.getVideosOperation({ operation });
-        } catch (e) {
-          console.error("Error polling video status:", e);
-          onProgress("Error checking status. Retrying...");
-        }
+        
+        // This will retry on failure and throw if all retries are exhausted.
+        getOperationResponse = await withRetry(() => ai.operations.getVideosOperation({ operation }));
     }
 
     onProgress("Video processing complete. Fetching video data...");
@@ -162,7 +200,7 @@ export const generateVideo = async (
     const ai = getGenAIClient();
     onProgress("Initializing video generation...");
 
-    let operation: GenerateVideosOperation = await ai.models.generateVideos({
+    const operation: GenerateVideosOperation = await withRetry(() => ai.models.generateVideos({
         model: 'veo-3.1-generate-preview',
         prompt,
         ...(image && { image: { imageBytes: image.base64, mimeType: image.mimeType } }),
@@ -171,7 +209,7 @@ export const generateVideo = async (
             resolution,
             aspectRatio,
         }
-    });
+    }));
     
     onProgress("Video generation started. This may take several minutes...");
     
@@ -190,7 +228,7 @@ export const extendVideo = async (
         throw new Error("Only 720p videos can be extended.");
     }
 
-    let operation: GenerateVideosOperation = await ai.models.generateVideos({
+    const operation: GenerateVideosOperation = await withRetry(() => ai.models.generateVideos({
         model: 'veo-3.1-generate-preview',
         prompt,
         video: previousVideo,
@@ -199,7 +237,7 @@ export const extendVideo = async (
             resolution: '720p',
             aspectRatio: previousVideo.aspectRatio,
         }
-    });
+    }));
     
     onProgress("Video extension started. This may take several minutes...");
 

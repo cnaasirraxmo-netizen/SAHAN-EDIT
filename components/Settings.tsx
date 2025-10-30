@@ -20,11 +20,31 @@ export const Settings: React.FC = () => {
     {
       id: 'openai',
       title: 'OpenAI',
-      description: 'Support for models like DALL-E and GPT-4 is coming soon.',
+      description: 'Future integration for models like GPT-4, DALL-E 3, and Sora.',
       getApiKeyUrl: 'https://platform.openai.com/api-keys',
       enabled: false,
     },
-    // Add other services here in the future
+    {
+      id: 'anthropic',
+      title: 'Anthropic',
+      description: 'Future integration for Claude series models for advanced reasoning and text generation.',
+      getApiKeyUrl: 'https://console.anthropic.com/settings/keys',
+      enabled: false,
+    },
+    {
+      id: 'groq',
+      title: 'Groq',
+      description: 'Future integration for high-speed inference with open-source models.',
+      getApiKeyUrl: 'https://console.groq.com/keys',
+      enabled: false,
+    },
+    {
+      id: 'replicate',
+      title: 'Replicate',
+      description: 'Future integration to access a wide variety of community-published models.',
+      getApiKeyUrl: 'https://replicate.com/account/api-tokens',
+      enabled: false,
+    },
   ];
 
   const loadKeys = useCallback(() => {
