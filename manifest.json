@@ -1,0 +1,16 @@
+{
+  "short_name": "SAHAN edit",
+  "name": "SAHAN edit",
+  "description": "An AI-powered creative suite for logos, image editing, and high-quality video creation. Your all-in-one tool for stunning visuals.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#18181b",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

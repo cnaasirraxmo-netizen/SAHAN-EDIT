@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { generateImage } from '../services/geminiService';
 import { AspectRatio } from '../types';
 import { LoadingSpinner } from './common/LoadingSpinner';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const aspectRatios: { value: AspectRatio; label: string }[] = [
     { value: '1:1', label: 'Square' },
@@ -34,6 +35,17 @@ export const GenerateLogo: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleDownload = () => {
+        if (!generatedImage) return;
+        const link = document.createElement('a');
+        link.href = generatedImage;
+        const fileName = prompt.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50) || 'sahan-logo';
+        link.download = `${fileName}.jpeg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -84,6 +96,18 @@ export const GenerateLogo: React.FC = () => {
                     <p className="text-zinc-500">Your generated logo will appear here.</p>
                 )}
             </div>
+            
+            {generatedImage && !isLoading && (
+                <div className="flex justify-center">
+                    <button
+                        onClick={handleDownload}
+                        className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center gap-2"
+                    >
+                        <ArrowDownTrayIcon className="w-5 h-5" />
+                        Download Logo
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
