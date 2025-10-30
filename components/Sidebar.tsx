@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../types';
-import { HomeIcon, SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, SwatchIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
     page: Page;
@@ -33,7 +33,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ page, setPage, isOpen, setIsOp
     const navItems = [
         { id: Page.HOME, text: 'Home', icon: <HomeIcon /> },
         { id: Page.LOGO_GEN, text: 'Generate Logo', icon: <SparklesIcon /> },
+        { id: Page.LOGO_EDIT, text: 'Edit Logo', icon: <SwatchIcon /> },
         { id: Page.IMAGE_EDIT, text: 'Edit Image', icon: <PaintBrushIcon /> },
+        { id: Page.VIDEO_PROMPT_GEN, text: 'Muuqaal Diyaarin', icon: <ClipboardDocumentListIcon /> },
         { id: Page.VIDEO_GEN, text: 'Generate Video', icon: <VideoCameraIcon /> },
         { id: Page.VIDEO_EDIT, text: 'Video Edit', icon: <FilmIcon /> },
         { id: Page.SETTINGS, text: 'Settings', icon: <Cog6ToothIcon /> },
@@ -57,7 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ page, setPage, isOpen, setIsOp
                         ))}
                     </nav>
                     <div className="p-4 mt-auto text-center text-xs text-zinc-500">
-                        <p>Powered by Google Gemini</p>
+                        <p>Powered by SAHAN TEAM</p>
                     </div>
                 </div>
             </aside>

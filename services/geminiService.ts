@@ -58,6 +58,28 @@ export const editImage = async (prompt: string, imageBase64: string, mimeType: s
     throw new Error("Image editing failed or returned no image data.");
 };
 
+export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'YouTube'): Promise<string> => {
+    const ai = getGenAIClient();
+
+    let systemInstruction = '';
+    if (platform === 'TikTok') {
+        systemInstruction = `You are a creative assistant specializing in short-form video content. Your task is to generate a concise, engaging script for a TikTok video. The script should be easily readable in under 60 seconds and formatted with clear visual cues and spoken parts. The language must be Somali.`;
+    } else if (platform === 'YouTube') {
+        systemInstruction = `You are an expert scriptwriter for long-form YouTube content. Your task is to generate a detailed, well-structured video script that is suitable for a 13+ minute video. The script must include an introduction, a main body with multiple sections, and a conclusion with a call to action. Include suggestions for visuals and b-roll. The language must be Somali.`;
+    }
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `Create a video script about the following topic: "${topic}"`,
+        config: {
+            systemInstruction,
+        },
+    });
+
+    return response.text;
+};
+
+
 const pollAndFetchVideo = async (operation: GenerateVideosOperation, ai: GoogleGenAI, onProgress: (message: string) => void): Promise<{ operation: GetVideosOperationResponse, url: string }> => {
     let getOperationResponse: GetVideosOperationResponse = operation;
     

@@ -10,7 +10,7 @@ const aspectRatios: { value: AspectRatio; label: string }[] = [
 ];
 
 export const GenerateLogo: React.FC = () => {
-    const [prompt, setPrompt] = useState<string>('A minimalist logo for a tech startup called "Nexus", vector, on a clean white background');
+    const [prompt, setPrompt] = useState<string>('A minimalist logo for a tech startup called "SAHAN", vector, on a clean white background');
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);

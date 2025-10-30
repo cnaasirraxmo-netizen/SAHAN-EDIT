@@ -5,9 +5,11 @@ import { Header } from './components/Header';
 import { Home } from './components/Home';
 import { GenerateLogo } from './components/ImageGenerator';
 import { ImageEditor } from './components/ImageEditor';
+import { LogoEditor } from './components/LogoEditor';
 import { VideoGenerator } from './components/VideoGenerator';
 import { VideoEditor } from './components/VideoEditor';
 import { Settings } from './components/Settings';
+import { VideoPromptGenerator } from './components/VideoPromptGenerator';
 
 
 const App: React.FC = () => {
@@ -22,10 +24,14 @@ const App: React.FC = () => {
         return <GenerateLogo />;
       case Page.IMAGE_EDIT:
         return <ImageEditor />;
+      case Page.LOGO_EDIT:
+        return <LogoEditor />;
       case Page.VIDEO_GEN:
         return <VideoGenerator />;
       case Page.VIDEO_EDIT:
         return <VideoEditor />;
+      case Page.VIDEO_PROMPT_GEN:
+        return <VideoPromptGenerator />;
       case Page.SETTINGS:
         return <Settings />;
       default:

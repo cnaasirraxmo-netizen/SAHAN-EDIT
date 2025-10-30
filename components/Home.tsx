@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../types';
-import { SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, ArrowRightIcon, SwatchIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 
 interface HomeProps {
     setPage: (page: Page) => void;
@@ -51,11 +51,23 @@ export const Home: React.FC<HomeProps> = ({ setPage }) => {
                     description="Create a unique, professional logo for your brand in seconds."
                     onClick={() => setPage(Page.LOGO_GEN)}
                 />
+                 <ToolCard
+                    icon={<SwatchIcon className="w-6 h-6" />}
+                    title="Edit Logo"
+                    description="Upload your logo to generate new variations and styles."
+                    onClick={() => setPage(Page.LOGO_EDIT)}
+                />
                 <ToolCard
                     icon={<PaintBrushIcon className="w-6 h-6" />}
                     title="Edit Image"
                     description="Upload an image and use AI to modify it with text prompts."
                     onClick={() => setPage(Page.IMAGE_EDIT)}
+                />
+                 <ToolCard
+                    icon={<ClipboardDocumentListIcon className="w-6 h-6" />}
+                    title="Muuqaal Diyaarin"
+                    description="Generate video scripts for platforms like TikTok and YouTube from a topic."
+                    onClick={() => setPage(Page.VIDEO_PROMPT_GEN)}
                 />
                  <ToolCard
                     icon={<VideoCameraIcon className="w-6 h-6" />}
