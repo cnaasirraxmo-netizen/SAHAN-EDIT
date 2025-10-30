@@ -22,19 +22,19 @@ const App: React.FC = () => {
       case Page.HOME:
         return <Home setPage={setPage} />;
       case Page.LOGO_GEN:
-        return <GenerateLogo />;
+        return <GenerateLogo setPage={setPage} />;
       case Page.IMAGE_GEN:
-        return <CinematicImageGenerator />;
+        return <CinematicImageGenerator setPage={setPage} />;
       case Page.IMAGE_EDIT:
-        return <ImageEditor />;
+        return <ImageEditor setPage={setPage} />;
       case Page.LOGO_EDIT:
-        return <LogoEditor />;
+        return <LogoEditor setPage={setPage} />;
       case Page.VIDEO_GEN:
         return <VideoGenerator />;
       case Page.VIDEO_EDIT:
         return <VideoEditor />;
       case Page.VIDEO_PROMPT_GEN:
-        return <VideoPromptGenerator />;
+        return <VideoPromptGenerator setPage={setPage} />;
       case Page.SETTINGS:
         return <Settings />;
       default:

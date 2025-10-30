@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { generateVideoScript } from '../services/geminiService';
 import { LoadingSpinner } from './common/LoadingSpinner';
 import { ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { Page } from '../types';
+import { ApiKeyError } from './common/ApiKeyError';
 
 const platforms = [
     { value: 'TikTok', label: 'TikTok (Short)' },
     { value: 'YouTube', label: 'YouTube (Long)' },
 ];
 
-export const VideoPromptGenerator: React.FC = () => {
+interface VideoPromptGeneratorProps {
+    setPage: (page: Page) => void;
+}
+
+export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setPage }) => {
     const [topic, setTopic] = useState<string>('sheeko caruureed oo xiiso leh'); // "an interesting children's story"
     const [platform, setPlatform] = useState<'TikTok' | 'YouTube'>('TikTok');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -81,7 +87,11 @@ export const VideoPromptGenerator: React.FC = () => {
                 </div>
             </div>
 
-            {error && <p className="text-red-400 text-center">{error}</p>}
+            {error && (
+                error.includes("API Key not found") ?
+                <ApiKeyError message={error} setPage={setPage} /> :
+                <p className="text-red-400 text-center">{error}</p>
+            )}
 
             <div className="mt-6 min-h-[400px] bg-zinc-800/50 rounded-lg flex flex-col items-center justify-center border border-dashed border-zinc-700 relative">
                 {isLoading ? (

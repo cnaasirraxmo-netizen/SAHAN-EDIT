@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { generateImage, editImage } from '../services/geminiService';
-import { AspectRatio } from '../types';
+import { AspectRatio, Page } from '../types';
 import { LoadingSpinner } from './common/LoadingSpinner';
 import { ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { ApiKeyError } from './common/ApiKeyError';
 
 const aspectRatios: { value: AspectRatio; label: string }[] = [
     { value: '1:1', label: 'Square' },
@@ -20,8 +21,11 @@ const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeT
     return { base64, mimeType: file.type };
 };
 
+interface GenerateLogoProps {
+    setPage: (page: Page) => void;
+}
 
-export const GenerateLogo: React.FC = () => {
+export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
     const [prompt, setPrompt] = useState<string>('A minimalist logo for a tech startup called "SAHAN", vector, on a clean white background');
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -145,7 +149,11 @@ export const GenerateLogo: React.FC = () => {
                 </div>
             </div>
 
-            {error && <p className="text-red-400 text-center">{error}</p>}
+            {error && (
+                error.includes("API Key not found") ?
+                <ApiKeyError message={error} setPage={setPage} /> :
+                <p className="text-red-400 text-center">{error}</p>
+            )}
 
             <div className={`mt-6 ${originalImage ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}`}>
                 {originalImage && (

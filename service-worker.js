@@ -9,6 +9,8 @@ const urlsToCache = [
   '/services/geminiService.ts',
   '/components/common/LoadingSpinner.tsx',
   '/components/common/ApiKeySelector.tsx',
+  '/components/common/ApiKeyError.tsx',
+  '/components/common/ApiKeyManager.tsx',
   '/components/ImageGenerator.tsx',
   '/components/CinematicImageGenerator.tsx',
   '/components/ImageEditor.tsx',

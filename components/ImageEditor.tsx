@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { editImage } from '../services/geminiService';
 import { LoadingSpinner } from './common/LoadingSpinner';
 import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { Page } from '../types';
+import { ApiKeyError } from './common/ApiKeyError';
 
 const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeType: string }> => {
     const base64 = await new Promise<string>((resolve, reject) => {
@@ -13,7 +15,11 @@ const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeT
     return { base64, mimeType: file.type };
 };
 
-export const ImageEditor: React.FC = () => {
+interface ImageEditorProps {
+    setPage: (page: Page) => void;
+}
+
+export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
     const [prompt, setPrompt] = useState<string>('Add a stylish pair of sunglasses to the main subject.');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [editedImage, setEditedImage] = useState<string | null>(null);
@@ -113,7 +119,11 @@ export const ImageEditor: React.FC = () => {
                 </button>
             </div>
 
-            {error && <p className="text-red-400 text-center">{error}</p>}
+            {error && (
+                error.includes("API Key not found") ?
+                <ApiKeyError message={error} setPage={setPage} /> :
+                <p className="text-red-400 text-center">{error}</p>
+            )}
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col items-center">

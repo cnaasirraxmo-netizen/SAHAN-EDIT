@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { generateImage } from '../services/geminiService';
-import { AspectRatio } from '../types';
+import { AspectRatio, Page } from '../types';
 import { LoadingSpinner } from './common/LoadingSpinner';
 import { ArrowDownTrayIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { ApiKeyError } from './common/ApiKeyError';
 
 const aspectRatios: { value: AspectRatio; label: string }[] = [
     { value: '16:9', label: 'Landscape' },
@@ -23,8 +24,11 @@ const styles = [
     { name: 'Fantasy', description: 'Magical, otherworldly scenes.' },
 ];
 
+interface CinematicImageGeneratorProps {
+    setPage: (page: Page) => void;
+}
 
-export const CinematicImageGenerator: React.FC = () => {
+export const CinematicImageGenerator: React.FC<CinematicImageGeneratorProps> = ({ setPage }) => {
     const [prompt, setPrompt] = useState<string>('A majestic castle on a cliff overlooking a stormy sea');
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
     const [selectedStyle, setSelectedStyle] = useState<string>(styles[0].name);
@@ -117,7 +121,11 @@ export const CinematicImageGenerator: React.FC = () => {
                 </div>
             </div>
 
-            {error && <p className="text-red-400 text-center">{error}</p>}
+            {error && (
+                error.includes("API Key not found") ?
+                <ApiKeyError message={error} setPage={setPage} /> :
+                <p className="text-red-400 text-center">{error}</p>
+            )}
             
             <div className="mt-6 min-h-[400px] bg-zinc-800/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
                 {isLoading ? (

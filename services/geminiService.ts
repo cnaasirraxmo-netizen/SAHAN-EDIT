@@ -2,25 +2,44 @@ import { GoogleGenAI, Modality, GenerateContentResponse, GenerateImagesResponse,
 import { AspectRatio, VideoAspectRatio, VideoResolution } from "../types";
 
 // --- START: API Key Management ---
-const API_KEY_STORAGE_KEY = 'sahan-edit-api-key';
+const API_KEYS_STORAGE_KEY = 'sahan-edit-api-keys';
 
-export const saveApiKey = (apiKey: string) => {
-    if (apiKey) {
-        localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
-    } else {
-        localStorage.removeItem(API_KEY_STORAGE_KEY);
+type ApiKeys = {
+    [key: string]: string | undefined;
+};
+
+// Helper function to get all keys
+const getAllApiKeys = (): ApiKeys => {
+    const keysJson = localStorage.getItem(API_KEYS_STORAGE_KEY);
+    try {
+        return keysJson ? JSON.parse(keysJson) : {};
+    } catch (e) {
+        console.error("Failed to parse API keys from localStorage", e);
+        return {};
     }
 };
 
-export const getApiKey = (): string | null => {
-    return localStorage.getItem(API_KEY_STORAGE_KEY);
+export const saveApiKey = (service: string, apiKey: string) => {
+    const keys = getAllApiKeys();
+    const trimmedApiKey = apiKey.trim();
+    if (trimmedApiKey) {
+        keys[service] = trimmedApiKey;
+    } else {
+        delete keys[service];
+    }
+    localStorage.setItem(API_KEYS_STORAGE_KEY, JSON.stringify(keys));
+};
+
+export const getApiKey = (service: string): string | null => {
+    const keys = getAllApiKeys();
+    return keys[service] || null;
 };
 // --- END: API Key Management ---
 
 const getGenAIClient = () => {
-    const apiKey = getApiKey();
+    const apiKey = getApiKey('gemini');
     if (!apiKey) {
-        throw new Error("API Key not found. Please set your API key in the Settings page.");
+        throw new Error("Google Gemini API Key not found. Please set your API key in the Settings page.");
     }
     // Create a new client for each request to ensure the latest API key is used.
     return new GoogleGenAI({ apiKey });
@@ -118,9 +137,9 @@ const pollAndFetchVideo = async (operation: GenerateVideosOperation, ai: GoogleG
         throw new Error("Video generation completed but no download link was found.");
     }
     
-    const apiKey = getApiKey();
+    const apiKey = getApiKey('gemini');
     if (!apiKey) {
-        throw new Error("API key not found for video download. Please set your API key in the Settings page.");
+        throw new Error("API key not found for video download. Please set your Google Gemini API key in the Settings page.");
     }
     const videoResponse = await fetch(`${downloadLink}&key=${apiKey}`);
     if (!videoResponse.ok) {
