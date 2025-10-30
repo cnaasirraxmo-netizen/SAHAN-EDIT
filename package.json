@@ -12,7 +12,9 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "@google/genai": "^1.28.0",
-    "@heroicons/react": "^2.2.0"
+    "@heroicons/react": "^2.2.0",
+    "idb": "7",
+    "workbox-window": "^7.3.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

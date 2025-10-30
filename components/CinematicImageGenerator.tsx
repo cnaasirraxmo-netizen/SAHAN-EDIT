@@ -46,8 +46,11 @@ export const CinematicImageGenerator: React.FC<CinematicImageGeneratorProps> = (
         setGeneratedImage(null);
         try {
             const fullPrompt = `${selectedStyle} style, high resolution, ${prompt}`;
-            const imageUrl = await generateImage(fullPrompt, aspectRatio);
-            setGeneratedImage(imageUrl);
+            // FIX: The service returns an object. Use the `imageUrl` property.
+            const result = await generateImage(fullPrompt, aspectRatio);
+            if (result.imageUrl) {
+                setGeneratedImage(result.imageUrl);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');
             console.error(err);

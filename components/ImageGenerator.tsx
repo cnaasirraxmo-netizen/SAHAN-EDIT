@@ -62,12 +62,18 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
             if (imageFile) {
                 const fullPrompt = `Generate a new logo design inspired by the uploaded image, incorporating these details: ${prompt}`;
                 const { base64, mimeType } = await fileToGenerativePart(imageFile);
-                const imageUrl = await editImage(fullPrompt, base64, mimeType);
-                setGeneratedImage(imageUrl);
+                // FIX: The service returns an object. Use the `imageUrl` property.
+                const result = await editImage(fullPrompt, base64, mimeType);
+                if (result.imageUrl) {
+                    setGeneratedImage(result.imageUrl);
+                }
             } else {
                 const fullPrompt = `logo design, vector art, minimalist, white background: ${prompt}`;
-                const imageUrl = await generateImage(fullPrompt, aspectRatio);
-                setGeneratedImage(imageUrl);
+                // FIX: The service returns an object. Use the `imageUrl` property.
+                const result = await generateImage(fullPrompt, aspectRatio);
+                if (result.imageUrl) {
+                    setGeneratedImage(result.imageUrl);
+                }
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');

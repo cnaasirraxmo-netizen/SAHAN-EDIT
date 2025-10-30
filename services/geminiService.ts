@@ -1,5 +1,8 @@
 import { GoogleGenAI, Modality, GenerateContentResponse, GenerateImagesResponse, GenerateVideosOperation, GetVideosOperationResponse, Video } from "@google/genai";
 import { AspectRatio, VideoAspectRatio, VideoResolution } from "../types";
+import { addImage, addRequestToQueue, QueuedRequest } from './idb';
+import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+
 
 // --- START: API Key Management ---
 const API_KEYS_STORAGE_KEY = 'sahan-edit-api-keys';
@@ -79,8 +82,33 @@ async function withRetry<T>(apiCall: () => Promise<T>): Promise<T> {
 }
 // --- END: API Call Retry Logic ---
 
+const handleOfflineRequest = async (type: QueuedRequest['type'], payload: any): Promise<{ id: string, status: 'queued' }> => {
+    const requestId = uuidv4();
+    await addRequestToQueue({
+        id: requestId,
+        type,
+        payload,
+        createdAt: new Date(),
+        retries: 0,
+    });
+    // Add a placeholder to the images table for optimistic UI
+    if (type === 'generateImage' || type === 'editImage') {
+        await addImage({
+            id: requestId,
+            prompt: payload.prompt,
+            status: 'queued',
+            createdAt: new Date(),
+        });
+    }
+    return { id: requestId, status: 'queued' };
+};
 
-export const generateImage = async (prompt: string, aspectRatio: AspectRatio): Promise<string> => {
+
+export const generateImage = async (prompt: string, aspectRatio: AspectRatio): Promise<{ id: string, status: 'completed' | 'queued', imageUrl?: string }> => {
+    if (!navigator.onLine) {
+        return handleOfflineRequest('generateImage', { prompt, aspectRatio });
+    }
+    
     return withRetry(async () => {
         const ai = getGenAIClient();
         const response: GenerateImagesResponse = await ai.models.generateImages({
@@ -95,13 +123,20 @@ export const generateImage = async (prompt: string, aspectRatio: AspectRatio): P
 
         if (response.generatedImages && response.generatedImages.length > 0) {
             const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-            return `data:image/jpeg;base64,${base64ImageBytes}`;
+            const imageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
+            const imageId = uuidv4();
+            await addImage({ id: imageId, prompt, status: 'completed', imageUrl, createdAt: new Date() });
+            return { id: imageId, status: 'completed', imageUrl };
         }
         throw new Error("Image generation failed or returned no images.");
     });
 };
 
-export const editImage = async (prompt: string, imageBase64: string, mimeType: string): Promise<string> => {
+export const editImage = async (prompt: string, imageBase64: string, mimeType: string): Promise<{ id: string, status: 'completed' | 'queued', imageUrl?: string }> => {
+    if (!navigator.onLine) {
+        return handleOfflineRequest('editImage', { prompt, imageBase64, mimeType });
+    }
+
     return withRetry(async () => {
         const ai = getGenAIClient();
         const response: GenerateContentResponse = await ai.models.generateContent({
@@ -125,7 +160,10 @@ export const editImage = async (prompt: string, imageBase64: string, mimeType: s
         for (const part of response.candidates[0].content.parts) {
             if (part.inlineData) {
                 const base64ImageBytes: string = part.inlineData.data;
-                return `data:${part.inlineData.mimeType};base64,${base64ImageBytes}`;
+                const imageUrl = `data:${part.inlineData.mimeType};base64,${base64ImageBytes}`;
+                const imageId = uuidv4();
+                await addImage({ id: imageId, prompt, status: 'completed', imageUrl, createdAt: new Date() });
+                return { id: imageId, status: 'completed', imageUrl };
             }
         }
         throw new Error("Image editing failed or returned no image data.");
@@ -133,6 +171,9 @@ export const editImage = async (prompt: string, imageBase64: string, mimeType: s
 };
 
 export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'YouTube'): Promise<string> => {
+     if (!navigator.onLine) {
+        throw new Error("You must be online to generate video scripts.");
+    }
     return withRetry(async () => {
         const ai = getGenAIClient();
 
@@ -197,6 +238,9 @@ export const generateVideo = async (
     resolution: VideoResolution,
     onProgress: (message: string) => void
 ): Promise<{ operation: GetVideosOperationResponse, url: string }> => {
+     if (!navigator.onLine) {
+        throw new Error("You must be online to generate videos.");
+    }
     const ai = getGenAIClient();
     onProgress("Initializing video generation...");
 
@@ -221,6 +265,9 @@ export const extendVideo = async (
     previousVideo: Video,
     onProgress: (message: string) => void
 ): Promise<{ operation: GetVideosOperationResponse, url: string }> => {
+    if (!navigator.onLine) {
+        throw new Error("You must be online to extend videos.");
+    }
     const ai = getGenAIClient();
     onProgress("Initializing video extension...");
 

@@ -56,8 +56,11 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
         setEditedImage(null);
         try {
             const { base64, mimeType } = await fileToGenerativePart(imageFile);
-            const imageUrl = await editImage(prompt, base64, mimeType);
-            setEditedImage(imageUrl);
+            // FIX: The service returns an object. Use the `imageUrl` property.
+            const result = await editImage(prompt, base64, mimeType);
+            if (result.imageUrl) {
+                setEditedImage(result.imageUrl);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');
             console.error(err);
