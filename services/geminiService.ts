@@ -292,7 +292,8 @@ export const generateVideo = async (
     onProgress("Initializing video generation...");
 
     const operation: GenerateVideosOperation = await withRetry(() => ai.models.generateVideos({
-        model: 'veo-3.1-generate-preview',
+        // FIX: Use 'veo-3.1-fast-generate-preview' for general video generation as per guidelines for better performance.
+        model: 'veo-3.1-fast-generate-preview',
         prompt,
         ...(image && { image: { imageBytes: image.base64, mimeType: image.mimeType } }),
         config: {

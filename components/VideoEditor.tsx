@@ -3,9 +3,6 @@ import { Page } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ArrowUpTrayIcon, FilmIcon, PlusIcon, TrashIcon, XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
-// @ts-ignore - FFmpeg is loaded from a script tag in index.html
-const { FFmpeg } = window.FFmpeg;
-
 interface TextOverlay {
     id: number;
     text: string;
@@ -42,7 +39,17 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
     // Load FFmpeg on component mount
     useEffect(() => {
         const loadFFmpeg = async () => {
+            // @ts-ignore
+            const FFmpegModule = window.FFmpeg;
+            if (!FFmpegModule || !FFmpegModule.FFmpeg) {
+                console.error("FFmpeg library is not available.");
+                setIsLoading(false);
+                // TODO: Set an error state to inform the user
+                return;
+            }
+            const { FFmpeg } = FFmpegModule;
             const ffmpegInstance = new FFmpeg();
+
             ffmpegInstance.on('log', ({ message }: { message: string }) => {
                  console.log(message);
             });
@@ -105,7 +112,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
     };
 
     const removeTextOverlay = (id: number) => {
-        setTextOverlays(overlays => overlays.filter(o => o.id !== id));
+        setTextOverlays(overlays => overlays.filter(o => o.id === id));
     };
 
     const handleExport = async () => {

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { generateVideoScript, generateVideoIdea } from '../services/geminiService';
 import { LoadingSpinner } from './common/LoadingSpinner';
-import { ClipboardDocumentListIcon, PlusIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ClipboardDocumentListIcon, PlusIcon, ChevronDownIcon, MicrophoneIcon, StopIcon } from '@heroicons/react/24/outline';
 import { LightBulbIcon } from '@heroicons/react/24/solid';
 import { Page } from '../types';
 import { ApiKeyError } from './common/ApiKeyError';
@@ -9,10 +9,34 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getAllScripts, StoredScript } from '../services/idb';
 import { useAuth } from '../contexts/AuthContext';
 import { getAllScriptsFromFirestore } from '../services/firestoreService';
+import { GoogleGenAI, Modality } from "@google/genai";
+import type { LiveServerMessage, Blob, LiveSession } from '@google/genai';
 
 
 interface VideoPromptGeneratorProps {
     setPage: (page: Page) => void;
+}
+
+// Helper functions for audio processing
+function encode(bytes: Uint8Array) {
+  let binary = '';
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+function createBlob(data: Float32Array): Blob {
+  const l = data.length;
+  const int16 = new Int16Array(l);
+  for (let i = 0; i < l; i++) {
+    int16[i] = data[i] * 32768;
+  }
+  return {
+    data: encode(new Uint8Array(int16.buffer)),
+    mimeType: 'audio/pcm;rate=16000',
+  };
 }
 
 export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setPage }) => {
@@ -37,6 +61,13 @@ export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setP
     const [ideaCategory, setIdeaCategory] = useState<string>('Trending');
     const [ideaError, setIdeaError] = useState<string | null>(null);
 
+    // State for Voice Input
+    const [isRecording, setIsRecording] = useState(false);
+    const sessionRef = useRef<LiveSession | null>(null);
+    const streamRef = useRef<MediaStream | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const processorRef = useRef<ScriptProcessorNode | null>(null);
+
     useEffect(() => {
         const loadHistory = async () => {
             setIsHistoryLoading(true);
@@ -51,6 +82,21 @@ export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setP
         };
         loadHistory();
     }, [currentUser]);
+    
+    // Cleanup effect for voice recording
+    useEffect(() => {
+        return () => {
+            if (sessionRef.current) {
+                sessionRef.current.close();
+            }
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+            }
+             if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+                audioContextRef.current.close();
+            }
+        };
+    }, []);
 
     const platforms = [
         { value: 'TikTok', label: t('video_script_platform_tiktok') },
@@ -139,6 +185,91 @@ export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setP
         if (generatedIdea) {
             setTopic(generatedIdea);
             document.getElementById('topic')?.focus();
+        }
+    };
+    
+    const toggleRecording = async () => {
+        if (isRecording) {
+            // Stop recording
+            if (sessionRef.current) {
+                sessionRef.current.close();
+                sessionRef.current = null;
+            }
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+                streamRef.current = null;
+            }
+            if (processorRef.current) {
+                processorRef.current.disconnect();
+                processorRef.current = null;
+            }
+            if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+                audioContextRef.current.close();
+                audioContextRef.current = null;
+            }
+            setIsRecording(false);
+            return;
+        }
+
+        // Start recording
+        setIsRecording(true);
+        if (topic === t('video_script_default_topic')) {
+            setTopic(''); // Clear default topic on first voice input
+        }
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            streamRef.current = stream;
+
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+            const sessionPromise = ai.live.connect({
+                model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+                callbacks: {
+                    onopen: () => {
+                        // FIX: Use `(window as any)` to handle the vendor-prefixed `webkitAudioContext` for older browser compatibility, resolving the TypeScript type error.
+                        const inputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+                        audioContextRef.current = inputAudioContext;
+
+                        const source = inputAudioContext.createMediaStreamSource(stream);
+                        const scriptProcessor = inputAudioContext.createScriptProcessor(4096, 1, 1);
+                        processorRef.current = scriptProcessor;
+
+                        scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
+                            const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+                            const pcmBlob = createBlob(inputData);
+                            sessionPromise.then((session) => {
+                                session.sendRealtimeInput({ media: pcmBlob });
+                            });
+                        };
+                        source.connect(scriptProcessor);
+                        scriptProcessor.connect(inputAudioContext.destination);
+                    },
+                    onmessage: (message: LiveServerMessage) => {
+                        if (message.serverContent?.inputTranscription) {
+                            const text = message.serverContent.inputTranscription.text;
+                            setTopic(prev => prev + text);
+                        }
+                    },
+                    onerror: (e: ErrorEvent) => {
+                        console.error('Live session error:', e);
+                        setError('Voice input error. Please try again.');
+                        toggleRecording(); // Stop on error
+                    },
+                    onclose: () => {
+                       // console.log('Live session closed.');
+                    },
+                },
+                config: {
+                    inputAudioTranscription: {},
+                },
+            });
+
+            sessionRef.current = await sessionPromise;
+            
+        } catch (err) {
+            console.error('Failed to start recording', err);
+            setError('Could not access microphone. Please check permissions.');
+            setIsRecording(false);
         }
     };
     
@@ -272,14 +403,24 @@ export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setP
                         </div>
                         <div>
                             <label htmlFor="topic" className="block text-sm font-medium text-zinc-300 mb-1">{t('video_script_topic_label')}</label>
-                            <textarea
-                                id="topic"
-                                value={topic}
-                                onChange={(e) => setTopic(e.target.value)}
-                                placeholder={t('video_script_prompt_placeholder')}
-                                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-28 resize-none"
-                                disabled={isLoading}
-                            />
+                            <div className="relative">
+                                <textarea
+                                    id="topic"
+                                    value={topic}
+                                    onChange={(e) => setTopic(e.target.value)}
+                                    placeholder={t('video_script_prompt_placeholder')}
+                                    className="w-full p-3 pr-12 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-28 resize-none"
+                                    disabled={isLoading}
+                                />
+                                <button
+                                    onClick={toggleRecording}
+                                    disabled={isLoading}
+                                    className={`absolute top-3 right-3 p-2 rounded-full transition-colors duration-200 ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'}`}
+                                    title={isRecording ? "Stop recording" : "Start voice input"}
+                                >
+                                    {isRecording ? <StopIcon className="w-5 h-5" /> : <MicrophoneIcon className="w-5 h-5" />}
+                                </button>
+                            </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 items-center">
                             <div className="w-full sm:w-auto">
