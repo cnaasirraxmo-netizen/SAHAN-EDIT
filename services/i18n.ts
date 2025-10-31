@@ -191,6 +191,14 @@ export const translations = {
     'style_cyberpunk_desc': 'Futuristic, neon-lit aesthetic.',
     'style_fantasy': 'Fantasy',
     'style_fantasy_desc': 'Magical, otherworldly scenes.',
+    'style_surreal': 'Surreal',
+    'style_surreal_desc': 'Dreamlike, bizarre, and imaginative scenes.',
+    'style_abstract': 'Abstract',
+    'style_abstract_desc': 'Non-representational, geometric or expressive forms.',
+    'style_impressionist': 'Impressionist',
+    'style_impressionist_desc': 'Focus on light and color, visible brushstrokes.',
+    'style_cartoon': 'Cartoon',
+    'style_cartoon_desc': 'Simple shapes, bold outlines, vibrant colors.',
     
     // Image Editor
     'image_edit_title': 'Image Editor',
@@ -407,6 +415,14 @@ export const translations = {
     'style_cyberpunk_desc': 'Mustaqbal, bilicsanaan neon-iftiin leh.',
     'style_fantasy': 'Mala-awaal',
     'style_fantasy_desc': 'Muuqaalo sixir ah oo adduunyo kale ah.',
+    'style_surreal': 'Riyo u eg',
+    'style_surreal_desc': 'Muuqaalo riyo u eg, yaab leh, iyo male-awaal ah.',
+    'style_abstract': 'Mujarrad',
+    'style_abstract_desc': 'Qaabab aan matalin, joomatari ah ama muujin ah.',
+    'style_impressionist': 'Dareen-celin',
+    'style_impressionist_desc': 'Diiradda saar iftiinka iyo midabka, burushyo muuqda.',
+    'style_cartoon': 'Kartuun',
+    'style_cartoon_desc': 'Qaabab fudud, xariijimo geesinimo leh, midabyo firfircoon.',
 
     // Image Editor
     'image_edit_title': 'Tafatiraha Sawirka',
@@ -622,6 +638,14 @@ export const translations = {
     'style_cyberpunk_desc': 'جمالي مستقبلي مضاء بالنيون.',
     'style_fantasy': 'خيالي',
     'style_fantasy_desc': 'مشاهد سحرية من عالم آخر.',
+    'style_surreal': 'سريالي',
+    'style_surreal_desc': 'مشاهد حالمة، غريبة، وخيالية.',
+    'style_abstract': 'تجريدي',
+    'style_abstract_desc': 'أشكال غير تمثيلية، هندسية أو تعبيرية.',
+    'style_impressionist': 'انطباعي',
+    'style_impressionist_desc': 'تركيز على الضوء واللون، ضربات فرشاة واضحة.',
+    'style_cartoon': 'كرتون',
+    'style_cartoon_desc': 'أشكال بسيطة، خطوط عريضة، ألوان زاهية.',
     
     // Image Editor
     'image_edit_title': 'محرر الصور',

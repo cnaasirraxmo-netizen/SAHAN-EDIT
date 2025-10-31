@@ -34,6 +34,10 @@ const styles: {
     { name: 'Digital Art', description: 'Modern, illustrative style.', key: 'style_digital_art', desc_key: 'style_digital_art_desc' },
     { name: 'Cyberpunk', description: 'Futuristic, neon-lit aesthetic.', key: 'style_cyberpunk', desc_key: 'style_cyberpunk_desc' },
     { name: 'Fantasy', description: 'Magical, otherworldly scenes.', key: 'style_fantasy', desc_key: 'style_fantasy_desc' },
+    { name: 'Surreal', description: 'Dreamlike, bizarre, and imaginative scenes.', key: 'style_surreal', desc_key: 'style_surreal_desc' },
+    { name: 'Abstract', description: 'Non-representational, geometric or expressive forms.', key: 'style_abstract', desc_key: 'style_abstract_desc' },
+    { name: 'Impressionist', description: 'Focus on light and color, visible brushstrokes.', key: 'style_impressionist', desc_key: 'style_impressionist_desc' },
+    { name: 'Cartoon', description: 'Simple shapes, bold outlines, vibrant colors.', key: 'style_cartoon', desc_key: 'style_cartoon_desc' },
 ];
 
 interface CinematicImageGeneratorProps {

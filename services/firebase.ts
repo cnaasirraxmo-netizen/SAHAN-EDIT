@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDR3C-1_smNgJG58Zq9KsMvYrhyaKkhsv8",
-  authDomain: "sahan-films-6e93b.firebaseapp.com",
+  authDomain: "films-6e93b.firebaseapp.com",
   projectId: "sahan-films-6e93b",
   storageBucket: "sahan-films-6e93b.firebasestorage.app",
   messagingSenderId: "1027839066415",

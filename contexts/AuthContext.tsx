@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, User, getRedirectResult } from 'firebase/auth';
 import { auth } from '../services/firebase';
 
 interface AuthContextType {
@@ -17,6 +17,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const unsubscribe = onAuthStateChanged(auth, user => {
       setCurrentUser(user);
       setLoading(false);
+    });
+    
+    // Handle the redirect result from Google Sign-In to catch any potential errors
+    getRedirectResult(auth).catch((error) => {
+        console.error("Firebase redirect result error:", error);
     });
 
     return unsubscribe;

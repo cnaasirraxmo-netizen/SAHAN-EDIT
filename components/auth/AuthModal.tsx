@@ -6,7 +6,7 @@ import { auth, googleProvider } from '../../services/firebase';
 import { 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
-    signInWithPopup,
+    signInWithRedirect,
     signOut,
     AuthError
 } from 'firebase/auth';
@@ -60,11 +60,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         setError(null);
         setIsLoading(true);
         try {
-            await signInWithPopup(auth, googleProvider);
-            onClose();
+            await signInWithRedirect(auth, googleProvider);
         } catch (err) {
             setError(handleAuthError(err as AuthError));
-        } finally {
             setIsLoading(false);
         }
     };
