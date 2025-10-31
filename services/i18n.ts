@@ -15,7 +15,7 @@ export const translations = {
     'button_download_logo': 'Download Logo',
     'button_editing': 'Editing...',
     'button_apply_edit': 'Apply Edit',
-    'button_download_edited_image': 'Download Edited Image',
+    'button_download_edited_image': 'Download Edited Video',
     'button_generate_new_design': 'Generate New Design',
     'button_download_new_design': 'Download New Design',
     'button_generate_image': 'Generate Image',
@@ -59,7 +59,7 @@ export const translations = {
     'home_card_video_gen_title': 'Generate Video',
     'home_card_video_gen_desc': 'Bring your ideas to life by generating video clips from text or an image.',
     'home_card_video_edit_title': 'Video Edit',
-    'home_card_video_edit_desc': 'Create a new story by generating sequential scenes from your video\'s first frame.',
+    'home_card_video_edit_desc': 'Upload and edit your own videos with trimming tools and text overlays.',
     'home_card_settings_title': 'Settings',
     'home_card_settings_desc': 'Configure application settings and API keys.',
 
@@ -120,9 +120,7 @@ export const translations = {
     // Coming Soon
     'coming_soon_title': 'Coming Soon',
     'coming_soon_message': 'This feature will be available in a future update.',
-    'video_generator_title': 'Video Generator',
-    'video_editor_title': 'Video Editor',
-    
+
     // Loading Messages
     'loading_creating_masterpiece': 'Creating your masterpiece...',
     'loading_applying_edits': 'Applying edits...',
@@ -239,7 +237,35 @@ export const translations = {
     'category_technology': 'Technology',
     'category_science': 'Science',
     'category_storytelling': 'Storytelling',
+    
+    // Video Generator
+    'video_gen_title': 'Video Generator',
+    'video_gen_prompt_label': 'Prompt',
+    'video_gen_prompt_placeholder': 'A neon hologram of a cat driving at top speed...',
+    'video_gen_image_label': 'Optional: Use an image as a starting frame',
+    'video_gen_image_upload': 'Upload Image',
+    'video_gen_image_info': 'PNG, JPG, WEBP < 4MB',
+    'video_gen_resolution_label': 'Resolution',
+    'video_gen_output_placeholder': 'Your generated video will appear here.',
+    'video_gen_extending': 'Extend This Video',
+    'video_gen_generating_long': 'Generating video. This may take a few minutes...',
 
+    // Video Editor
+    'video_edit_title': 'Video Editor',
+    'video_edit_upload_title': 'Upload Your Video',
+    'video_edit_upload_desc': 'Select a video file from your device to start editing.',
+    'video_edit_upload_cta': 'Choose File',
+    'video_edit_change_video': 'Change Video',
+    'video_edit_loading_ffmpeg': 'Loading editor...',
+    'video_edit_controls_title': 'Edit Controls',
+    'video_edit_text_overlay': 'Text Overlay',
+    'video_edit_text_placeholder': 'Enter text',
+    'video_edit_font_size': 'Size',
+    'video_edit_add_text': 'Add Text Overlay',
+    'video_edit_export': 'Export Video',
+    'video_edit_exporting': 'Exporting...',
+    'video_edit_output_title': 'Your Edited Video',
+    'video_edit_processing_message': 'Your video is being processed. Please wait...',
   },
   so: {
     // General
@@ -257,7 +283,7 @@ export const translations = {
     'button_download_logo': 'Degso Astaanta',
     'button_editing': 'Waa la beddelayaa...',
     'button_apply_edit': 'Codso Wax Ka Beddelka',
-    'button_download_edited_image': 'Degso Sawirka La Beddelay',
+    'button_download_edited_image': 'Degso Muuqaalka La Beddelay',
     'button_generate_new_design': 'Samee Naqshad Cusub',
     'button_download_new_design': 'Degso Naqshadda Cusub',
     'button_generate_image': 'Samee Sawir',
@@ -301,7 +327,7 @@ export const translations = {
     'home_card_video_gen_title': 'Samee Muuqaal',
     'home_card_video_gen_desc': 'Fikradahaaga nolosha geli adigoo ka abuuraya goos goosyo muuqaal ah qoraal ama sawir.',
     'home_card_video_edit_title': 'Beddel Muuqaalka',
-    'home_card_video_edit_desc': 'Abuur sheeko cusub adigoo ka abuuraya muuqaallo isku xiga jiritaanka hore ee muuqaalkaaga.',
+    'home_card_video_edit_desc': 'Soo geli oo wax ka beddel muuqaalladaada adoo isticmaalaya qalabka jarista iyo qoraallada.',
     'home_card_settings_title': 'Habaynka',
     'home_card_settings_desc': 'Habee habaynka barnaamijka iyo furayaasha API.',
 
@@ -362,8 +388,6 @@ export const translations = {
     // Coming Soon
     'coming_soon_title': 'Goor dhow',
     'coming_soon_message': 'Sifadan ayaa diyaar noqon doonta cusboonaysiin mustaqbalka ah.',
-    'video_generator_title': 'Sameeyaha Muuqaalka',
-    'video_editor_title': 'Tafatiraha Muuqaalka',
     
     // Loading Messages
     'loading_creating_masterpiece': 'Abuuristaada farshaxan-yahanka ah...',
@@ -481,6 +505,35 @@ export const translations = {
     'category_technology': 'Tiknooloji',
     'category_science': 'Saynis',
     'category_storytelling': 'Sheeko-xariir',
+
+    // Video Generator
+    'video_gen_title': 'Sameeyaha Muuqaalka',
+    'video_gen_prompt_label': 'Qoraal',
+    'video_gen_prompt_placeholder': 'Hologram neon ah oo bisad xawaare sare ku wadata...',
+    'video_gen_image_label': 'Ikhtiyaari: U isticmaal sawir qaab bilow ah',
+    'video_gen_image_upload': 'Soo Geli Sawir',
+    'video_gen_image_info': 'PNG, JPG, WEBP < 4MB',
+    'video_gen_resolution_label': 'Xallinta',
+    'video_gen_output_placeholder': 'Muuqaalkaaga la sameeyay halkan ayuu ka soo muuqan doonaa.',
+    'video_gen_extending': 'Dheeree Muuqaalkan',
+    'video_gen_generating_long': 'Waa la sameynayaa muuqaal. Tani waxay qaadan kartaa dhowr daqiiqo...',
+
+    // Video Editor
+    'video_edit_title': 'Tafatiraha Muuqaalka',
+    'video_edit_upload_title': 'Soo Geli Muuqaalkaaga',
+    'video_edit_upload_desc': 'Ka dooro fayl muuqaal ah qalabkaaga si aad u bilowdo tafatirka.',
+    'video_edit_upload_cta': 'Dooro Faylka',
+    'video_edit_change_video': 'Beddel Muuqaalka',
+    'video_edit_loading_ffmpeg': 'Waa la soo shubayaa tafatiraha...',
+    'video_edit_controls_title': 'Kontaroolada Tafatirka',
+    'video_edit_text_overlay': 'Qoraal Dusha ah',
+    'video_edit_text_placeholder': 'Geli qoraalka',
+    'video_edit_font_size': 'Cabbirka',
+    'video_edit_add_text': 'Kudar Qoraal Dusha ah',
+    'video_edit_export': 'Dhoofi Muuqaalka',
+    'video_edit_exporting': 'Waa la dhoofinayaa...',
+    'video_edit_output_title': 'Muuqaalkaaga La Tafatiray',
+    'video_edit_processing_message': 'Muuqaalkaaga waa la shaqeynayaa. Fadlan sug...',
   },
   ar: {
     // General
@@ -498,7 +551,7 @@ export const translations = {
     'button_download_logo': 'تنزيل الشعار',
     'button_editing': 'جاري التحرير...',
     'button_apply_edit': 'تطبيق التعديل',
-    'button_download_edited_image': 'تنزيل الصورة المعدلة',
+    'button_download_edited_image': 'تنزيل الفيديو المعدل',
     'button_generate_new_design': 'إنشاء تصميم جديد',
     'button_download_new_design': 'تنزيل التصميم الجديد',
     'button_generate_image': 'إنشاء صورة',
@@ -542,7 +595,7 @@ export const translations = {
     'home_card_video_gen_title': 'إنشاء فيديو',
     'home_card_video_gen_desc': 'حوّل أفكارك إلى حقيقة بإنشاء مقاطع فيديو من نص أو صورة.',
     'home_card_video_edit_title': 'تحرير الفيديو',
-    'home_card_video_edit_desc': 'أنشئ قصة جديدة بإنشاء مشاهد متسلسلة من الإطار الأول للفيديو.',
+    'home_card_video_edit_desc': 'حمّل وحرر مقاطع الفيديو الخاصة بك باستخدام أدوات القص وتراكبات النصوص.',
     'home_card_settings_title': 'الإعدادات',
     'home_card_settings_desc': 'تكوين إعدادات التطبيق ومفاتيح API.',
 
@@ -603,8 +656,6 @@ export const translations = {
     // Coming Soon
     'coming_soon_title': 'قريباً',
     'coming_soon_message': 'ستكون هذه الميزة متاحة في تحديث مستقبلي.',
-    'video_generator_title': 'مولد الفيديو',
-    'video_editor_title': 'محرر الفيديو',
 
     // Loading Messages
     'loading_creating_masterpiece': 'جاري إنشاء تحفتك الفنية...',
@@ -722,5 +773,34 @@ export const translations = {
     'category_technology': 'التكنولوجيا',
     'category_science': 'العلوم',
     'category_storytelling': 'سرد القصص',
+
+    // Video Generator
+    'video_gen_title': 'مولد الفيديو',
+    'video_gen_prompt_label': 'موجه',
+    'video_gen_prompt_placeholder': 'هولوغرام نيون لقط يقود بأقصى سرعة...',
+    'video_gen_image_label': 'اختياري: استخدم صورة كإطار بداية',
+    'video_gen_image_upload': 'تحميل صورة',
+    'video_gen_image_info': 'PNG, JPG, WEBP < 4MB',
+    'video_gen_resolution_label': 'الدقة',
+    'video_gen_output_placeholder': 'سيظهر الفيديو الذي تم إنشاؤه هنا.',
+    'video_gen_extending': 'تمديد هذا الفيديو',
+    'video_gen_generating_long': 'جاري إنشاء الفيديو. قد يستغرق هذا بضع دقائق...',
+
+    // Video Editor
+    'video_edit_title': 'محرر الفيديو',
+    'video_edit_upload_title': 'تحميل الفيديو الخاص بك',
+    'video_edit_upload_desc': 'حدد ملف فيديو من جهازك لبدء التحرير.',
+    'video_edit_upload_cta': 'اختر ملفًا',
+    'video_edit_change_video': 'تغيير الفيديو',
+    'video_edit_loading_ffmpeg': 'جاري تحميل المحرر...',
+    'video_edit_controls_title': 'عناصر التحكم في التحرير',
+    'video_edit_text_overlay': 'تراكب النص',
+    'video_edit_text_placeholder': 'أدخل النص',
+    'video_edit_font_size': 'الحجم',
+    'video_edit_add_text': 'إضافة تراكب نصي',
+    'video_edit_export': 'تصدير الفيديو',
+    'video_edit_exporting': 'جاري التصدير...',
+    'video_edit_output_title': 'الفيديو المعدل الخاص بك',
+    'video_edit_processing_message': 'جاري معالجة الفيديو الخاص بك. الرجاء الانتظار...',
   },
 };

@@ -18,6 +18,7 @@ import { processSyncQueue } from './services/syncService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { AuthModal } from './components/auth/AuthModal';
+import type { Video } from '@google/genai';
 
 
 const OnlineStatusBanner: React.FC<{ isOnline: boolean }> = ({ isOnline }) => {
@@ -43,6 +44,7 @@ const AppContent: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isOnline, wasOffline } = useOnlineStatus();
   const { language } = useLanguage();
+  const [videoContext, setVideoContext] = useState<{ video: Video; url: string } | null>(null);
 
   useEffect(() => {
     // Initialize the database on app load
@@ -74,9 +76,9 @@ const AppContent: React.FC = () => {
       case Page.LOGO_EDIT:
         return <LogoEditor setPage={setPage} />;
       case Page.VIDEO_GEN:
-        return <VideoGenerator />;
+        return <VideoGenerator setPage={setPage} setVideoContext={setVideoContext} />;
       case Page.VIDEO_EDIT:
-        return <VideoEditor />;
+        return <VideoEditor setPage={setPage} videoContext={videoContext} setVideoContext={setVideoContext} />;
       case Page.VIDEO_PROMPT_GEN:
         return <VideoPromptGenerator setPage={setPage} />;
       case Page.SETTINGS:
@@ -87,6 +89,11 @@ const AppContent: React.FC = () => {
   };
 
   const handleSetPage = (newPage: Page) => {
+    // Clear video editing context when navigating away from the video editing flow
+    // to ensure a fresh start next time.
+    if (newPage !== Page.VIDEO_EDIT) {
+      setVideoContext(null);
+    }
     setPage(newPage);
     setIsSidebarOpen(false); // Close sidebar on navigation for mobile
   }
