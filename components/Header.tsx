@@ -2,13 +2,19 @@ import React from 'react';
 import { Bars3Icon, MagnifyingGlassIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { AnimatedLogo } from './common/AnimatedLogo';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
     onMenuClick: () => void;
+    onProfileClick: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+export const Header: React.FC<HeaderProps> = ({ onMenuClick, onProfileClick }) => {
     const { t } = useLanguage();
+    const { currentUser } = useAuth();
+    
+    const userInitial = currentUser?.email ? currentUser.email.charAt(0).toUpperCase() : null;
+
     return (
         <header className="fixed top-0 left-0 right-0 h-16 bg-zinc-800/90 backdrop-blur-md border-b border-zinc-700 z-50 flex items-center px-4 justify-between">
             <div className="flex items-center gap-4">
@@ -35,9 +41,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             </div>
 
             <div className="flex items-center">
-                <button className="p-2 rounded-full text-zinc-300 hover:text-white hover:bg-zinc-700">
+                <button onClick={onProfileClick} className="p-2 rounded-full text-zinc-300 hover:text-white hover:bg-zinc-700">
                     <span className="sr-only">User profile</span>
-                    <UserCircleIcon className="w-8 h-8" />
+                    {currentUser && userInitial ? (
+                        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                            {userInitial}
+                        </div>
+                    ) : (
+                        <UserCircleIcon className="w-8 h-8" />
+                    )}
                 </button>
             </div>
         </header>

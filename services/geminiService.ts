@@ -2,6 +2,8 @@ import { GoogleGenAI, Modality, GenerateContentResponse, GenerateImagesResponse,
 import { AspectRatio, VideoAspectRatio, VideoResolution } from "../types";
 import { addImage, addRequestToQueue, QueuedRequest, StoredScript, addScript } from './idb';
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+import { auth } from './firebase';
+import { addScriptToFirestore } from './firestoreService';
 
 
 // --- START: API Key Management ---
@@ -192,14 +194,29 @@ export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'Y
             },
         });
 
-        const newScript: StoredScript = {
-            id: uuidv4(),
+        const currentUser = auth.currentUser;
+        const newScriptData = {
             topic,
             platform,
             script: response.text,
+        };
+        
+        let scriptId = uuidv4();
+        if (currentUser) {
+            try {
+                scriptId = await addScriptToFirestore(currentUser.uid, newScriptData);
+            } catch (firestoreError) {
+                console.error("Failed to save script to Firestore, will only save locally.", firestoreError);
+            }
+        }
+
+        const newScript: StoredScript = {
+            id: scriptId,
+            ...newScriptData,
             createdAt: new Date(),
         };
 
+        // Always save to IndexedDB for offline access/backup
         await addScript(newScript);
         return newScript;
     });

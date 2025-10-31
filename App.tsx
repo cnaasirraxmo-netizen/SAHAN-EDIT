@@ -16,6 +16,8 @@ import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { initDB } from './services/idb';
 import { processSyncQueue } from './services/syncService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { AuthModal } from './components/auth/AuthModal';
 
 
 const OnlineStatusBanner: React.FC<{ isOnline: boolean }> = ({ isOnline }) => {
@@ -38,6 +40,7 @@ const OnlineStatusBanner: React.FC<{ isOnline: boolean }> = ({ isOnline }) => {
 const AppContent: React.FC = () => {
   const [page, setPage] = useState<Page>(Page.HOME);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isOnline, wasOffline } = useOnlineStatus();
   const { language } = useLanguage();
 
@@ -95,7 +98,7 @@ const AppContent: React.FC = () => {
       {bannerRoot && !isOnline && ReactDOM.createPortal(<OnlineStatusBanner isOnline={isOnline} />, bannerRoot)}
       {bannerRoot && isOnline && wasOffline && ReactDOM.createPortal(<OnlineStatusBanner isOnline={isOnline} />, bannerRoot)}
       
-      <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} onProfileClick={() => setIsAuthModalOpen(true)} />
       <Sidebar page={page} setPage={handleSetPage} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
       <main className={`lg:ml-64 lg:rtl:mr-64 lg:rtl:ml-0 min-h-screen transition-padding duration-300 ${!isOnline || (isOnline && wasOffline) ? 'pt-24' : 'pt-16'}`}>
@@ -103,14 +106,18 @@ const AppContent: React.FC = () => {
            {renderPage()}
         </div>
       </main>
+
+      {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} />}
     </div>
   );
 };
 
 const App: React.FC = () => (
-  <LanguageProvider>
-    <AppContent />
-  </LanguageProvider>
+  <AuthProvider>
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  </AuthProvider>
 );
 
 

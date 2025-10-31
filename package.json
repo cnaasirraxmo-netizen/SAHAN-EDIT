@@ -14,7 +14,8 @@
     "@google/genai": "^1.28.0",
     "@heroicons/react": "^2.2.0",
     "idb": "7",
-    "workbox-window": "^7.3.0"
+    "workbox-window": "^7.3.0",
+    "firebase": "^12.5.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

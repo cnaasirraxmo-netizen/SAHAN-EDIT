@@ -99,6 +99,23 @@ export const translations = {
     'api_key_manager_enter_key_placeholder': 'Enter your API key',
     'api_key_manager_success_message': 'API Key updated successfully!',
     'api_key_error_go_to_settings': 'Go to Settings',
+    
+    // Auth Modal
+    'auth_modal_welcome_back': 'Welcome Back',
+    'auth_modal_logout': 'Log Out',
+    'auth_modal_signin': 'Sign In',
+    'auth_modal_signup': 'Sign Up',
+    'auth_modal_email': 'Email',
+    'auth_modal_password': 'Password',
+    'auth_modal_signin_cta': 'Sign In',
+    'auth_modal_signup_cta': 'Create Account',
+    'auth_modal_google_signin': 'Sign in with Google',
+    'auth_modal_no_account': "Don't have an account?",
+    'auth_modal_have_account': 'Already have an account?',
+    'auth_modal_error_email_exists': 'This email is already in use.',
+    'auth_modal_error_weak_password': 'Password should be at least 6 characters.',
+    'auth_modal_error_invalid_cred': 'Invalid email or password.',
+    'auth_modal_error_generic': 'An error occurred. Please try again.',
 
     // Coming Soon
     'coming_soon_title': 'Coming Soon',
@@ -299,6 +316,23 @@ export const translations = {
     'api_key_manager_success_message': 'Furaha API si guul leh ayaa loo cusboonaysiiyay!',
     'api_key_error_go_to_settings': 'Tag Habaynka',
 
+    // Auth Modal
+    'auth_modal_welcome_back': 'Soo Dhawoow Mar Kale',
+    'auth_modal_logout': 'Ka Bax',
+    'auth_modal_signin': 'Soo Gal',
+    'auth_modal_signup': 'Is Diiwaan Geli',
+    'auth_modal_email': 'Iimayl',
+    'auth_modal_password': 'Furaha Sirta',
+    'auth_modal_signin_cta': 'Soo Gal',
+    'auth_modal_signup_cta': 'Samee Akoon',
+    'auth_modal_google_signin': 'Kusoo Gal Google',
+    'auth_modal_no_account': 'Akoon ma lihid?',
+    'auth_modal_have_account': 'Akoon ma leedahay?',
+    'auth_modal_error_email_exists': 'Iimaylkan horey ayaa loo isticmaalay.',
+    'auth_modal_error_weak_password': 'Furaha sirta waa inuu ahaadaa ugu yaraan 6 xaraf.',
+    'auth_modal_error_invalid_cred': 'Iimayl ama fure sir ah oo khaldan.',
+    'auth_modal_error_generic': 'Cilad ayaa dhacday. Fadlan isku day mar kale.',
+
     // Coming Soon
     'coming_soon_title': 'Goor dhow',
     'coming_soon_message': 'Sifadan ayaa diyaar noqon doonta cusboonaysiin mustaqbalka ah.',
@@ -497,6 +531,23 @@ export const translations = {
     'api_key_manager_success_message': 'تم تحديث مفتاح API بنجاح!',
     'api_key_error_go_to_settings': 'اذهب إلى الإعدادات',
     
+    // Auth Modal
+    'auth_modal_welcome_back': 'أهلاً بعودتك',
+    'auth_modal_logout': 'تسجيل الخروج',
+    'auth_modal_signin': 'تسجيل الدخول',
+    'auth_modal_signup': 'إنشاء حساب',
+    'auth_modal_email': 'البريد الإلكتروني',
+    'auth_modal_password': 'كلمة المرور',
+    'auth_modal_signin_cta': 'تسجيل الدخول',
+    'auth_modal_signup_cta': 'إنشاء حساب',
+    'auth_modal_google_signin': 'تسجيل الدخول باستخدام جوجل',
+    'auth_modal_no_account': 'ليس لديك حساب؟',
+    'auth_modal_have_account': 'هل لديك حساب بالفعل؟',
+    'auth_modal_error_email_exists': 'هذا البريد الإلكتروني مستخدم بالفعل.',
+    'auth_modal_error_weak_password': 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.',
+    'auth_modal_error_invalid_cred': 'بريد إلكتروني أو كلمة مرور غير صالحة.',
+    'auth_modal_error_generic': 'حدث خطأ. الرجاء المحاولة مرة أخرى.',
+
     // Coming Soon
     'coming_soon_title': 'قريباً',
     'coming_soon_message': 'ستكون هذه الميزة متاحة في تحديث مستقبلي.',

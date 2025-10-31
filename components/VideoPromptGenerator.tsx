@@ -6,6 +6,8 @@ import { Page } from '../types';
 import { ApiKeyError } from './common/ApiKeyError';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getAllScripts, StoredScript } from '../services/idb';
+import { useAuth } from '../contexts/AuthContext';
+import { getAllScriptsFromFirestore } from '../services/firestoreService';
 
 
 interface VideoPromptGeneratorProps {
@@ -14,6 +16,8 @@ interface VideoPromptGeneratorProps {
 
 export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setPage }) => {
     const { t } = useLanguage();
+    const { currentUser } = useAuth();
+
     const [topic, setTopic] = useState<string>(t('video_script_default_topic'));
     const [platform, setPlatform] = useState<'TikTok' | 'YouTube'>('TikTok');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,15 +26,23 @@ export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setP
     const [isCopied, setIsCopied] = useState<boolean>(false);
     
     const [history, setHistory] = useState<StoredScript[]>([]);
+    const [isHistoryLoading, setIsHistoryLoading] = useState(true);
     const [activeScriptId, setActiveScriptId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadHistory = async () => {
-            const scripts = await getAllScripts();
+            setIsHistoryLoading(true);
+            let scripts: StoredScript[] = [];
+            if (currentUser) {
+                scripts = await getAllScriptsFromFirestore(currentUser.uid);
+            } else {
+                scripts = await getAllScripts();
+            }
             setHistory(scripts);
+            setIsHistoryLoading(false);
         };
         loadHistory();
-    }, []);
+    }, [currentUser]);
 
     const platforms = [
         { value: 'TikTok', label: t('video_script_platform_tiktok') },
@@ -106,7 +118,7 @@ export const VideoPromptGenerator: React.FC<VideoPromptGeneratorProps> = ({ setP
                             </button>
                         </div>
                         <div className="bg-zinc-800/50 rounded-lg border border-zinc-700 max-h-[65vh] overflow-y-auto">
-                            {isLoading && history.length === 0 ? (
+                            {isHistoryLoading ? (
                                 <div className="p-4"><LoadingSpinner /></div>
                             ) : history.length > 0 ? (
                                 <ul className="divide-y divide-zinc-700">
