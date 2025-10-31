@@ -35,6 +35,7 @@ export interface StoredScript {
   platform: 'TikTok' | 'YouTube';
   script: string;
   createdAt: Date;
+  seasonName?: string;
 }
 
 

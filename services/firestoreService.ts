@@ -34,6 +34,7 @@ export const getAllScriptsFromFirestore = async (userId: string): Promise<Stored
                 topic: data.topic,
                 platform: data.platform,
                 script: data.script,
+                seasonName: data.seasonName,
                 // Convert Firestore Timestamp to JS Date, provide fallback
                 createdAt: data.createdAt?.toDate() || new Date(),
             });

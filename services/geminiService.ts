@@ -172,7 +172,27 @@ export const editImage = async (prompt: string, imageBase64: string, mimeType: s
     });
 };
 
-export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'YouTube'): Promise<StoredScript> => {
+export const generateVideoIdea = async (category: string, platform: 'TikTok' | 'YouTube'): Promise<string> => {
+    if (!navigator.onLine) {
+        throw new Error("You must be online to generate video ideas.");
+    }
+    return withRetry(async () => {
+        const ai = getGenAIClient();
+
+        const prompt = category === 'Trending'
+            ? `Generate a single, highly engaging and trending video topic idea for a ${platform} video for today. The idea should be current and likely to go viral. Provide only a short, catchy title as the response, without any extra text, labels, or quotation marks.`
+            : `Generate a single, interesting video topic idea about "${category}" for a ${platform} video. Provide only a short, catchy title as the response, without any extra text, labels, or quotation marks.`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+        });
+
+        return response.text.trim();
+    });
+};
+
+export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'YouTube', seasonName?: string): Promise<StoredScript> => {
      if (!navigator.onLine) {
         throw new Error("You must be online to generate video scripts.");
     }
@@ -199,6 +219,7 @@ export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'Y
             topic,
             platform,
             script: response.text,
+            seasonName: seasonName?.trim() || undefined,
         };
         
         let scriptId = uuidv4();

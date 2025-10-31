@@ -6,7 +6,7 @@ import { auth, googleProvider } from '../../services/firebase';
 import { 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
-    signInWithRedirect,
+    signInWithPopup,
     signOut,
     AuthError
 } from 'firebase/auth';
@@ -60,9 +60,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         setError(null);
         setIsLoading(true);
         try {
-            await signInWithRedirect(auth, googleProvider);
+            await signInWithPopup(auth, googleProvider);
+            onClose();
         } catch (err) {
             setError(handleAuthError(err as AuthError));
+        } finally {
             setIsLoading(false);
         }
     };
@@ -152,7 +154,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         disabled={isLoading}
                         className="w-full bg-zinc-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-zinc-600 transition-colors flex items-center justify-center gap-3"
                     >
-                        <svg className="w-5 h-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.3 76.3c-24.2-22.4-56-36.4-92.6-36.4-68.9 0-125.9 55.2-125.9 123s57 123 125.9 123c72.8 0 115.7-48.4 120.9-72.6H248v-94.2h238.2c1.2 11.2 2.7 22.4 2.7 34.2z"></path></svg>
+                        <svg className="w-5 h-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.3 76.3c-24.2-22.4-56-36.4-92.6-36.4-68.9 0-125.9 55.2-125.9 123s57 123 125.9 123c72.8 0 115.7-48.4 120.9-72.6H248v-94.2h238.2c1.2 11.2 2.7 22.4 2.7 34.2z"></path></svg>
                         <span>{t('auth_modal_google_signin')}</span>
                     </button>
 
