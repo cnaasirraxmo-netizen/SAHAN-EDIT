@@ -27,6 +27,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
     const [duration, setDuration] = useState<number>(0);
     const [trimStart, setTrimStart] = useState<number>(0);
     const [trimEnd, setTrimEnd] = useState<number>(0);
+    const [volume, setVolume] = useState<number>(1);
     const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
     
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -58,6 +59,14 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
         };
         loadFFmpeg();
     }, []);
+    
+    // Effect to control video volume in the preview player
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.volume = volume;
+        }
+    }, [volume]);
+
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -110,30 +119,32 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
             const videoData = new Uint8Array(await videoFile.arrayBuffer());
             await ffmpeg.writeFile(videoFile.name, videoData);
 
-            const filters: string[] = [];
+            const textFilters: string[] = [];
             textOverlays.forEach(overlay => {
                 // Sanitize text for FFmpeg command
                 const sanitizedText = overlay.text.replace(/'/g, "'\\''");
-                filters.push(
+                textFilters.push(
                     `drawtext=text='${sanitizedText}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=${overlay.fontSize}:fontcolor=${overlay.color}:enable='between(t,${overlay.startTime},${overlay.endTime})'`
                 );
             });
             
-            const filterComplex = filters.join(',');
+            const command: string[] = ['-i', videoFile.name];
 
-            const command = [
-                '-i', videoFile.name,
-                '-ss', trimStart.toString(),
-                '-to', trimEnd.toString(),
-                '-vf', filterComplex,
-                '-c:v', 'libx264',
-                '-preset', 'ultrafast',
-                'output.mp4'
-            ];
-            
-            if(filters.length === 0) {
-                 command.splice(3, 2); // remove filter if not needed
+            // Trimming
+            command.push('-ss', trimStart.toString());
+            command.push('-to', trimEnd.toString());
+
+            // Video filters (text overlays)
+            if (textFilters.length > 0) {
+                const filterComplex = textFilters.join(',');
+                command.push('-vf', filterComplex);
             }
+            
+            // Audio filter (volume)
+            command.push('-af', `volume=${volume}`);
+            
+            // Output settings
+            command.push('-c:v', 'libx264', '-preset', 'ultrafast', 'output.mp4');
 
             await ffmpeg.exec(command);
             
@@ -224,6 +235,24 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
                 <div className="bg-zinc-800/50 p-4 rounded-lg border border-zinc-700 space-y-4 h-fit">
                     <h3 className="text-xl font-bold text-zinc-200 border-b border-zinc-700 pb-2">{t('video_edit_controls_title')}</h3>
                     
+                    {/* Volume Control */}
+                    <div className="space-y-2 pt-2">
+                        <label htmlFor="volume-slider" className="flex justify-between items-center text-sm font-semibold text-zinc-300">
+                           <span>{t('video_edit_volume_label')}</span>
+                           <span className="text-zinc-400 font-mono">{Math.round(volume * 100)}%</span>
+                        </label>
+                        <input
+                            id="volume-slider"
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={volume}
+                            onChange={(e) => setVolume(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
+                    </div>
+
                     {/* Text Overlays */}
                     <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
                         {textOverlays.map(overlay => (
