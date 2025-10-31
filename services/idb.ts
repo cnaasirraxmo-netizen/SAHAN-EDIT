@@ -2,9 +2,10 @@ import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { AspectRatio } from '../types';
 
 const DB_NAME = 'sahan-edit-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Incremented version for schema change
 const IMAGE_STORE = 'generated-images';
 const QUEUE_STORE = 'sync-queue';
+const VIDEO_SCRIPT_STORE = 'video-scripts';
 
 export interface StoredImage {
   id: string;
@@ -28,6 +29,14 @@ export interface QueuedRequest {
     retries: number;
 }
 
+export interface StoredScript {
+  id: string;
+  topic: string;
+  platform: 'TikTok' | 'YouTube';
+  script: string;
+  createdAt: Date;
+}
+
 
 interface SahanDB extends DBSchema {
   [IMAGE_STORE]: {
@@ -40,6 +49,11 @@ interface SahanDB extends DBSchema {
     value: QueuedRequest;
     indexes: { 'createdAt': Date };
   };
+  [VIDEO_SCRIPT_STORE]: {
+    key: string;
+    value: StoredScript;
+    indexes: { 'createdAt': Date };
+  };
 }
 
 let dbPromise: Promise<IDBPDatabase<SahanDB>> | null = null;
@@ -48,14 +62,22 @@ export const initDB = () => {
   if (dbPromise) return dbPromise;
   
   dbPromise = openDB<SahanDB>(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(IMAGE_STORE)) {
-        const store = db.createObjectStore(IMAGE_STORE, { keyPath: 'id' });
-        store.createIndex('createdAt', 'createdAt');
+    upgrade(db, oldVersion) {
+      if (oldVersion < 1) {
+        if (!db.objectStoreNames.contains(IMAGE_STORE)) {
+            const store = db.createObjectStore(IMAGE_STORE, { keyPath: 'id' });
+            store.createIndex('createdAt', 'createdAt');
+        }
+        if (!db.objectStoreNames.contains(QUEUE_STORE)) {
+            const store = db.createObjectStore(QUEUE_STORE, { keyPath: 'id' });
+            store.createIndex('createdAt', 'createdAt');
+        }
       }
-      if (!db.objectStoreNames.contains(QUEUE_STORE)) {
-        const store = db.createObjectStore(QUEUE_STORE, { keyPath: 'id' });
-        store.createIndex('createdAt', 'createdAt');
+      if (oldVersion < 2) {
+          if (!db.objectStoreNames.contains(VIDEO_SCRIPT_STORE)) {
+              const store = db.createObjectStore(VIDEO_SCRIPT_STORE, { keyPath: 'id' });
+              store.createIndex('createdAt', 'createdAt');
+          }
       }
     },
   });
@@ -106,4 +128,17 @@ export const removeRequestFromQueue = async (id: string) => {
 export const updateRequestInQueue = async (request: QueuedRequest) => {
     const db = await initDB();
     return db.put(QUEUE_STORE, request);
+};
+
+// --- Script Store Functions ---
+
+export const addScript = async (script: StoredScript) => {
+  const db = await initDB();
+  return db.put(VIDEO_SCRIPT_STORE, script);
+};
+
+export const getAllScripts = async (): Promise<StoredScript[]> => {
+  const db = await initDB();
+  const scripts = await db.getAllFromIndex(VIDEO_SCRIPT_STORE, 'createdAt');
+  return scripts.reverse(); // Newest first
 };

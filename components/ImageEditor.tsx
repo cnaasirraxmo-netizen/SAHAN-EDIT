@@ -4,6 +4,7 @@ import { LoadingSpinner } from './common/LoadingSpinner';
 import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { Page } from '../types';
 import { ApiKeyError } from './common/ApiKeyError';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeType: string }> => {
     const base64 = await new Promise<string>((resolve, reject) => {
@@ -20,6 +21,7 @@ interface ImageEditorProps {
 }
 
 export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
+    const { t } = useLanguage();
     const [prompt, setPrompt] = useState<string>('Add a stylish pair of sunglasses to the main subject.');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [editedImage, setEditedImage] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 4 * 1024 * 1024) { // 4MB limit
-                setError('File is too large. Please upload an image under 4MB.');
+                setError(t('error_file_too_large'));
                 return;
             }
             setImageFile(file);
@@ -44,11 +46,11 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
 
     const handleEdit = async () => {
         if (!prompt) {
-            setError('Please enter an editing prompt.');
+            setError(t('error_enter_edit_prompt'));
             return;
         }
         if (!imageFile) {
-            setError('Please upload an image to edit.');
+            setError(t('error_upload_image_to_edit'));
             return;
         }
         setIsLoading(true);
@@ -62,7 +64,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
                 setEditedImage(result.imageUrl);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+            setError(err instanceof Error ? err.message : t('error_unknown'));
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -83,7 +85,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">Image Editor</h2>
+            <h2 className="text-2xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">{t('image_edit_title')}</h2>
             
             <div 
                 onClick={() => fileInputRef.current?.click()}
@@ -100,7 +102,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
                 <div className="flex flex-col items-center">
                     <ArrowUpTrayIcon className="w-10 h-10 text-zinc-400 mb-2"/>
                     <p className="text-zinc-300">
-                        {imageFile ? `Selected: ${imageFile.name}` : 'Click to upload an image (PNG, JPG, WEBP < 4MB)'}
+                        {imageFile ? `${t('image_edit_selected')}: ${imageFile.name}` : t('image_edit_upload_prompt')}
                     </p>
                 </div>
             </div>
@@ -109,7 +111,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
                  <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Enter editing instructions (e.g., 'make the sky purple')..."
+                    placeholder={t('image_edit_prompt_placeholder')}
                     className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-24 resize-none"
                     disabled={isLoading || !originalImage}
                 />
@@ -118,7 +120,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
                     disabled={isLoading || !originalImage}
                     className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                    {isLoading ? 'Editing...' : 'Apply Edit'}
+                    {isLoading ? t('button_editing') : t('button_apply_edit')}
                 </button>
             </div>
 
@@ -130,24 +132,24 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col items-center">
-                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">Original</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">{t('image_edit_original')}</h3>
                     <div className="w-full aspect-square bg-zinc-900/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
                         {originalImage ? (
-                            <img src={originalImage} alt="Original" className="rounded-lg max-w-full max-h-full object-contain" />
+                            <img src={originalImage} alt={t('image_edit_original')} className="rounded-lg max-w-full max-h-full object-contain" />
                         ) : (
-                            <p className="text-zinc-500">Upload an image to start</p>
+                            <p className="text-zinc-500">{t('image_edit_upload_to_start')}</p>
                         )}
                     </div>
                 </div>
                 <div className="flex flex-col items-center">
-                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">Edited</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">{t('image_edit_edited')}</h3>
                      <div className="w-full aspect-square bg-zinc-900/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
                         {isLoading ? (
-                            <LoadingSpinner message="Applying edits..." />
+                            <LoadingSpinner message={t('loading_applying_edits')} />
                         ) : editedImage ? (
-                            <img src={editedImage} alt="Edited" className="rounded-lg max-w-full max-h-full object-contain" />
+                            <img src={editedImage} alt={t('image_edit_edited')} className="rounded-lg max-w-full max-h-full object-contain" />
                         ) : (
-                            <p className="text-zinc-500">Your edited image will appear here</p>
+                            <p className="text-zinc-500">{t('image_edit_output_placeholder')}</p>
                         )}
                     </div>
                 </div>
@@ -160,7 +162,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({ setPage }) => {
                         className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center gap-2"
                     >
                         <ArrowDownTrayIcon className="w-5 h-5" />
-                        Download Edited Image
+                        {t('button_download_edited_image')}
                     </button>
                 </div>
             )}

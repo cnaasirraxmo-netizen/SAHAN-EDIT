@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
@@ -7,8 +7,16 @@
     <title>SAHAN edit</title>
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <meta name="theme-color" content="#6366f1" />
+    <meta name="theme-color" content="#18181b" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Set theme from local storage before page load to prevent flash of wrong theme
+      if (localStorage.getItem('sahan-edit-theme') === 'light' || (!('sahan-edit-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+        document.documentElement.classList.remove('dark')
+      } else {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
     <style>
       /* Custom scrollbar for a more modern look */
       ::-webkit-scrollbar {
@@ -28,9 +36,16 @@
         scroll-behavior: smooth;
       }
       body {
-        background-color: #18181b; /* zinc-900 */
+        /* Default light mode styles */
+        background-color: #fafafa; /* zinc-50 */
+        color: #18181b; /* zinc-900 */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+      }
+      .dark body {
+         /* Dark mode styles */
+        background-color: #18181b; /* zinc-900 */
+        color: #e4e4e7; /* zinc-200 */
       }
     </style>
   <script type="importmap">

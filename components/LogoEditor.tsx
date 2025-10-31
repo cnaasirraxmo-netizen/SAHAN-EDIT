@@ -4,6 +4,12 @@ import { LoadingSpinner } from './common/LoadingSpinner';
 import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { Page } from '../types';
 import { ApiKeyError } from './common/ApiKeyError';
+import { useLanguage } from '../contexts/LanguageContext';
+// FIX: Import translations to define a type for translation keys.
+import { translations } from '../services/i18n';
+
+// FIX: Define a type for valid translation keys.
+type TranslationKey = keyof typeof translations.en;
 
 const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeType: string }> => {
     const base64 = await new Promise<string>((resolve, reject) => {
@@ -15,12 +21,12 @@ const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeT
     return { base64, mimeType: file.type };
 };
 
-const editTypes = [
-    { value: 'Generate variations of this logo', label: 'Generate Variations' },
-    { value: 'Modernize this logo, make it sleek and professional', label: 'Modernize' },
-    { value: 'Add a 3D effect to this logo', label: 'Add 3D Effect' },
-    { value: 'Make this logo minimalist, clean lines, simple', label: 'Make Minimalist' },
-    { value: 'Change the color palette of this logo to blues and greens', label: 'Change Color Palette' },
+const editTypes: { value: string; key: TranslationKey }[] = [
+    { value: 'Generate variations of this logo', key: 'logo_edit_style_variations' },
+    { value: 'Modernize this logo, make it sleek and professional', key: 'logo_edit_style_modernize' },
+    { value: 'Add a 3D effect to this logo', key: 'logo_edit_style_3d' },
+    { value: 'Make this logo minimalist, clean lines, simple', key: 'logo_edit_style_minimalist' },
+    { value: 'Change the color palette of this logo to blues and greens', key: 'logo_edit_style_palette' },
 ];
 
 interface LogoEditorProps {
@@ -28,6 +34,7 @@ interface LogoEditorProps {
 }
 
 export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
+    const { t } = useLanguage();
     const [prompt, setPrompt] = useState<string>('');
     const [editType, setEditType] = useState<string>(editTypes[0].value);
     const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -41,7 +48,7 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 4 * 1024 * 1024) { // 4MB limit
-                setError('File is too large. Please upload an image under 4MB.');
+                setError(t('error_file_too_large'));
                 return;
             }
             setImageFile(file);
@@ -53,7 +60,7 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
 
     const handleGenerate = async () => {
         if (!imageFile) {
-            setError('Please upload a logo to edit.');
+            setError(t('error_upload_logo_to_edit'));
             return;
         }
         setIsLoading(true);
@@ -68,7 +75,7 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
                 setEditedImage(result.imageUrl);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+            setError(err instanceof Error ? err.message : t('error_unknown'));
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -89,7 +96,7 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">Edit Logo</h2>
+            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">{t('logo_edit_title')}</h2>
             
             <div 
                 onClick={() => fileInputRef.current?.click()}
@@ -106,14 +113,14 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
                 <div className="flex flex-col items-center">
                     <ArrowUpTrayIcon className="w-10 h-10 text-zinc-400 mb-2"/>
                     <p className="text-zinc-300">
-                        {imageFile ? `Selected: ${imageFile.name}` : 'Click to upload your logo (PNG, JPG, WEBP < 4MB)'}
+                        {imageFile ? `${t('image_edit_selected')}: ${imageFile.name}` : t('logo_edit_upload_prompt')}
                     </p>
                 </div>
             </div>
 
             <div className="flex flex-col gap-4">
                 <div>
-                    <label htmlFor="edit-type" className="block text-sm font-medium text-zinc-300 mb-1">Edit Style</label>
+                    <label htmlFor="edit-type" className="block text-sm font-medium text-zinc-300 mb-1">{t('logo_edit_style_label')}</label>
                     <select
                         id="edit-type"
                         value={editType}
@@ -122,14 +129,14 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
                         disabled={isLoading || !originalImage}
                     >
                         {editTypes.map(et => (
-                            <option key={et.value} value={et.value}>{et.label}</option>
+                            <option key={et.value} value={et.value}>{t(et.key)}</option>
                         ))}
                     </select>
                 </div>
                  <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Optional: Add more specific instructions..."
+                    placeholder={t('logo_edit_prompt_placeholder')}
                     className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-24 resize-none"
                     disabled={isLoading || !originalImage}
                 />
@@ -138,7 +145,7 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
                     disabled={isLoading || !originalImage}
                     className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                    {isLoading ? 'Generating...' : 'Generate New Design'}
+                    {isLoading ? t('button_generating') : t('button_generate_new_design')}
                 </button>
             </div>
 
@@ -150,24 +157,24 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col items-center">
-                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">Original Logo</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">{t('logo_edit_original_logo')}</h3>
                     <div className="w-full aspect-square bg-zinc-900/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
                         {originalImage ? (
-                            <img src={originalImage} alt="Original Logo" className="rounded-lg max-w-full max-h-full object-contain" />
+                            <img src={originalImage} alt={t('logo_edit_original_logo')} className="rounded-lg max-w-full max-h-full object-contain" />
                         ) : (
-                            <p className="text-zinc-500">Upload a logo to start</p>
+                            <p className="text-zinc-500">{t('logo_edit_upload_to_start')}</p>
                         )}
                     </div>
                 </div>
                 <div className="flex flex-col items-center">
-                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">Generated Design</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-zinc-400">{t('logo_edit_generated_design')}</h3>
                      <div className="w-full aspect-square bg-zinc-900/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
                         {isLoading ? (
-                            <LoadingSpinner message="Reimagining your logo..." />
+                            <LoadingSpinner message={t('loading_reimagining_logo')} />
                         ) : editedImage ? (
-                            <img src={editedImage} alt="Edited Logo" className="rounded-lg max-w-full max-h-full object-contain" />
+                            <img src={editedImage} alt={t('logo_edit_generated_design')} className="rounded-lg max-w-full max-h-full object-contain" />
                         ) : (
-                            <p className="text-zinc-500">Your new logo design will appear here</p>
+                            <p className="text-zinc-500">{t('logo_edit_output_placeholder')}</p>
                         )}
                     </div>
                 </div>
@@ -179,7 +186,7 @@ export const LogoEditor: React.FC<LogoEditorProps> = ({ setPage }) => {
                         className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center gap-2"
                     >
                         <ArrowDownTrayIcon className="w-5 h-5" />
-                        Download New Design
+                        {t('button_download_new_design')}
                     </button>
                 </div>
             )}

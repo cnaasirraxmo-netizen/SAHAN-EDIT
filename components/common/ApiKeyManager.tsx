@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { KeyIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ApiKeyManagerProps {
   serviceId: string;
@@ -22,6 +23,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   onClear,
   isEnabled,
 }) => {
+  const { t } = useLanguage();
   const [apiKey, setApiKey] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success'>('idle');
 
@@ -40,7 +42,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   };
 
   const maskApiKey = (key: string | null): string => {
-    if (!key) return 'Not Set';
+    if (!key) return t('api_key_manager_not_set');
     if (key.length <= 8) return '****' + key.slice(-4);
     return key.slice(0, 4) + '...' + key.slice(-4);
   };
@@ -49,7 +51,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     <div className={`p-6 bg-zinc-800/50 rounded-lg border border-zinc-700 relative ${!isEnabled ? 'opacity-50' : ''}`}>
       {!isEnabled && (
         <div className="absolute inset-0 bg-zinc-900/50 flex items-center justify-center rounded-lg" title="This feature is not yet available.">
-          <span className="text-lg font-bold text-zinc-400">Coming Soon</span>
+          <span className="text-lg font-bold text-zinc-400">{t('coming_soon_title')}</span>
         </div>
       )}
       <div className={`transition-opacity ${!isEnabled ? 'blur-sm' : ''}`}>
@@ -64,12 +66,12 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         </div>
 
         <div className="mb-6 p-4 bg-zinc-900 rounded-lg border border-zinc-700">
-          <p className="text-sm text-zinc-500">Current API Key</p>
+          <p className="text-sm text-zinc-500">{t('api_key_manager_current_key')}</p>
           <p className="font-mono text-white text-lg break-all">{maskApiKey(currentKey)}</p>
         </div>
         
         <p className="text-zinc-400 mb-4 text-sm">
-          Get your API key from{' '}
+          {t('api_key_manager_get_key_prompt')}{' '}
           <a
             href={getApiKeyUrl}
             target="_blank"
@@ -77,21 +79,21 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
             className="text-indigo-400 hover:underline"
             tabIndex={!isEnabled ? -1 : 0}
           >
-            the official website
+            {t('api_key_manager_official_website')}
           </a>.
         </p>
 
         <div className="space-y-4">
           <div>
             <label htmlFor={`api-key-${serviceId}`} className="block text-sm font-medium text-zinc-300 mb-1">
-              Enter New or Updated API Key
+              {t('api_key_manager_enter_key_label')}
             </label>
             <input
               id={`api-key-${serviceId}`}
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter your API key"
+              placeholder={t('api_key_manager_enter_key_placeholder')}
               className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               disabled={!isEnabled}
             />
@@ -103,14 +105,14 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
               disabled={!apiKey.trim() || !isEnabled}
               className="flex-1 bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-zinc-600 disabled:cursor-not-allowed"
             >
-              Save API Key
+              {t('button_save_api_key')}
             </button>
             <button
               onClick={handleClear}
               disabled={!currentKey || !isEnabled}
               className="flex-1 bg-zinc-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-zinc-700 transition-colors duration-300 disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
             >
-              Clear Saved Key
+              {t('button_clear_saved_key')}
             </button>
           </div>
         </div>
@@ -118,7 +120,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         {saveStatus === 'success' && (
           <div className="mt-4 flex items-center text-green-400 transition-opacity duration-300">
             <CheckCircleIcon className="w-5 h-5 mr-2" />
-            <span>API Key updated successfully!</span>
+            <span>{t('api_key_manager_success_message')}</span>
           </div>
         )}
       </div>

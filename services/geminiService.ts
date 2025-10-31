@@ -1,6 +1,6 @@
 import { GoogleGenAI, Modality, GenerateContentResponse, GenerateImagesResponse, GenerateVideosOperation, GetVideosOperationResponse, Video } from "@google/genai";
 import { AspectRatio, VideoAspectRatio, VideoResolution } from "../types";
-import { addImage, addRequestToQueue, QueuedRequest } from './idb';
+import { addImage, addRequestToQueue, QueuedRequest, StoredScript, addScript } from './idb';
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
 
@@ -170,7 +170,7 @@ export const editImage = async (prompt: string, imageBase64: string, mimeType: s
     });
 };
 
-export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'YouTube'): Promise<string> => {
+export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'YouTube'): Promise<StoredScript> => {
      if (!navigator.onLine) {
         throw new Error("You must be online to generate video scripts.");
     }
@@ -192,7 +192,16 @@ export const generateVideoScript = async (topic: string, platform: 'TikTok' | 'Y
             },
         });
 
-        return response.text;
+        const newScript: StoredScript = {
+            id: uuidv4(),
+            topic,
+            platform,
+            script: response.text,
+            createdAt: new Date(),
+        };
+
+        await addScript(newScript);
+        return newScript;
     });
 };
 

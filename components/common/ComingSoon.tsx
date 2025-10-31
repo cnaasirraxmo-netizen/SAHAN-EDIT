@@ -12,7 +12,7 @@ export const ComingSoon: React.FC<ComingSoonProps> = ({ title, icon, message }) 
       {icon}
       <h2 className="mt-6 text-2xl font-bold text-white">{title}</h2>
       <p className="mt-2 text-zinc-400">
-        {message || 'This feature will be available in a future update.'}
+        {message}
       </p>
     </div>
   );

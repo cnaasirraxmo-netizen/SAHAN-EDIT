@@ -4,11 +4,18 @@ import { AspectRatio, Page } from '../types';
 import { LoadingSpinner } from './common/LoadingSpinner';
 import { ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import { ApiKeyError } from './common/ApiKeyError';
+import { useLanguage } from '../contexts/LanguageContext';
+// FIX: Import translations to define a type for translation keys.
+import { translations } from '../services/i18n';
 
-const aspectRatios: { value: AspectRatio; label: string }[] = [
-    { value: '1:1', label: 'Square' },
-    { value: '16:9', label: 'Landscape' },
-    { value: '9:16', label: 'Portrait' },
+// FIX: Define a type for valid translation keys.
+type TranslationKey = keyof typeof translations.en;
+
+
+const aspectRatios: { value: AspectRatio; label: string; key: TranslationKey }[] = [
+    { value: '1:1', label: 'Square', key: 'aspect_square' },
+    { value: '16:9', label: 'Landscape', key: 'aspect_landscape' },
+    { value: '9:16', label: 'Portrait', key: 'aspect_portrait' },
 ];
 
 const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeType: string }> => {
@@ -26,6 +33,7 @@ interface GenerateLogoProps {
 }
 
 export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
+    const { t } = useLanguage();
     const [prompt, setPrompt] = useState<string>('A minimalist logo for a tech startup called "SAHAN", vector, on a clean white background');
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -40,7 +48,7 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 4 * 1024 * 1024) { // 4MB limit
-                setError('File is too large. Please upload an image under 4MB.');
+                setError(t('error_file_too_large'));
                 return;
             }
             setImageFile(file);
@@ -52,7 +60,7 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
 
     const handleGenerate = async () => {
         if (!prompt) {
-            setError('Please enter a prompt.');
+            setError(t('error_enter_prompt'));
             return;
         }
         setIsLoading(true);
@@ -62,21 +70,19 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
             if (imageFile) {
                 const fullPrompt = `Generate a new logo design inspired by the uploaded image, incorporating these details: ${prompt}`;
                 const { base64, mimeType } = await fileToGenerativePart(imageFile);
-                // FIX: The service returns an object. Use the `imageUrl` property.
                 const result = await editImage(fullPrompt, base64, mimeType);
                 if (result.imageUrl) {
                     setGeneratedImage(result.imageUrl);
                 }
             } else {
                 const fullPrompt = `logo design, vector art, minimalist, white background: ${prompt}`;
-                // FIX: The service returns an object. Use the `imageUrl` property.
                 const result = await generateImage(fullPrompt, aspectRatio);
                 if (result.imageUrl) {
                     setGeneratedImage(result.imageUrl);
                 }
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+            setError(err instanceof Error ? err.message : t('error_unknown'));
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -96,18 +102,18 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">Logo Generator</h2>
+            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">{t('logo_gen_title')}</h2>
             <div className="flex flex-col gap-4">
                 <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Enter a detailed prompt for your logo..."
+                    placeholder={t('logo_gen_prompt_placeholder')}
                     className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow duration-200 h-28 resize-none"
                     disabled={isLoading}
                 />
 
                 <div className="p-4 bg-zinc-800/50 border border-zinc-700 rounded-lg">
-                    <p className="text-sm font-medium text-zinc-300 mb-2">Optional: Use an image as inspiration</p>
+                    <p className="text-sm font-medium text-zinc-300 mb-2">{t('logo_gen_inspiration_title')}</p>
                     <div
                         onClick={() => fileInputRef.current?.click()}
                         className="cursor-pointer p-4 border-2 border-dashed border-zinc-600 rounded-lg text-center hover:border-indigo-500 hover:bg-zinc-800 transition-colors"
@@ -123,16 +129,16 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
                         <div className="flex flex-col items-center">
                             <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mb-2"/>
                             <p className="text-zinc-300 text-sm">
-                                {imageFile ? `Selected: ${imageFile.name}` : 'Upload your logo or an image'}
+                                {imageFile ? `${t('image_edit_selected')}: ${imageFile.name}` : t('logo_gen_inspiration_upload')}
                             </p>
-                            <p className="text-xs text-zinc-500 mt-1">PNG, JPG, WEBP &lt; 4MB</p>
+                            <p className="text-xs text-zinc-500 mt-1">{t('logo_gen_inspiration_info')}</p>
                         </div>
                     </div>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 items-center">
-                    <div className={`w-full sm:w-auto transition-opacity duration-300 ${imageFile ? 'opacity-50' : 'opacity-100'}`} title={imageFile ? "Aspect ratio is determined by the uploaded image" : ""}>
-                        <label htmlFor="aspect-ratio" className="block text-sm font-medium text-zinc-300 mb-1">Aspect Ratio</label>
+                    <div className={`w-full sm:w-auto transition-opacity duration-300 ${imageFile ? 'opacity-50' : 'opacity-100'}`} title={imageFile ? t('logo_gen_aspect_ratio_disabled_tooltip') : ""}>
+                        <label htmlFor="aspect-ratio" className="block text-sm font-medium text-zinc-300 mb-1">{t('aspect_ratio_label')}</label>
                         <select
                             id="aspect-ratio"
                             value={aspectRatio}
@@ -141,7 +147,7 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
                             disabled={isLoading || !!imageFile}
                         >
                             {aspectRatios.map(ar => (
-                                <option key={ar.value} value={ar.value}>{ar.label} ({ar.value})</option>
+                                <option key={ar.value} value={ar.value}>{t(ar.key)} ({ar.value})</option>
                             ))}
                         </select>
                     </div>
@@ -150,7 +156,7 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
                         disabled={isLoading}
                         className="w-full sm:w-auto mt-2 sm:mt-0 sm:self-end bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                        {isLoading ? 'Generating...' : 'Generate'}
+                        {isLoading ? t('button_generating') : t('button_generate')}
                     </button>
                 </div>
             </div>
@@ -164,22 +170,22 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
             <div className={`mt-6 ${originalImage ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}`}>
                 {originalImage && (
                     <div className="flex flex-col items-center">
-                        <h3 className="text-lg font-semibold mb-2 text-zinc-400">Inspiration</h3>
+                        <h3 className="text-lg font-semibold mb-2 text-zinc-400">{t('logo_gen_inspiration_label')}</h3>
                         <div className="w-full aspect-square bg-zinc-800/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700">
-                            <img src={originalImage} alt="Inspiration" className="rounded-lg max-w-full max-h-full object-contain" />
+                            <img src={originalImage} alt={t('logo_gen_inspiration_label')} className="rounded-lg max-w-full max-h-full object-contain" />
                         </div>
                     </div>
                 )}
                 <div className={`flex flex-col items-center ${originalImage ? '' : 'col-span-1'}`}>
-                    {originalImage && <h3 className="text-lg font-semibold mb-2 text-zinc-400">Generated Logo</h3>}
+                    {originalImage && <h3 className="text-lg font-semibold mb-2 text-zinc-400">{t('logo_gen_generated_logo')}</h3>}
                     <div className={`w-full ${originalImage ? 'aspect-square' : 'min-h-[300px]'} bg-zinc-800/50 rounded-lg flex items-center justify-center border border-dashed border-zinc-700`}>
                         {isLoading ? (
-                            <LoadingSpinner message="Creating your masterpiece..." />
+                            <LoadingSpinner message={t('loading_creating_masterpiece')} />
                         ) : generatedImage ? (
-                            <img src={generatedImage} alt="Generated Logo" className="rounded-lg max-w-full max-h-[60vh] object-contain" />
+                            <img src={generatedImage} alt={t('logo_gen_generated_logo')} className="rounded-lg max-w-full max-h-[60vh] object-contain" />
                         ) : (
                             <p className="text-zinc-500">
-                                {originalImage ? 'Your new logo will appear here.' : 'Your generated logo will appear here.'}
+                                {originalImage ? t('logo_gen_output_placeholder_with_inspiration') : t('logo_gen_output_placeholder')}
                             </p>
                         )}
                     </div>
@@ -193,7 +199,7 @@ export const GenerateLogo: React.FC<GenerateLogoProps> = ({ setPage }) => {
                         className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center gap-2"
                     >
                         <ArrowDownTrayIcon className="w-5 h-5" />
-                        Download Logo
+                        {t('button_download_logo')}
                     </button>
                 </div>
             )}
