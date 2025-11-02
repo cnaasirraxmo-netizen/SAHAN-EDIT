@@ -42,6 +42,7 @@ export const translations = {
     'sidebar_edit_video': 'Edit Video',
     'sidebar_settings': 'Settings',
     'sidebar_footer': 'Powered by SAHAN TEAM',
+    'sidebar_video_analyzer': 'Analyzer',
 
     // Home Page
     'home_title_1': 'Welcome to',
@@ -63,6 +64,9 @@ export const translations = {
     'home_card_video_edit_desc': 'Upload and edit your own videos with trimming tools and text overlays.',
     'home_card_settings_title': 'Settings',
     'home_card_settings_desc': 'Configure application settings and API keys.',
+    'home_card_video_analyzer_title': 'Video Analyzer',
+    'home_card_video_analyzer_desc': 'Upload a video to generate summaries, flashcards, or marketing highlights.',
+
 
     // Settings Page
     'settings_title': 'Settings',
@@ -128,6 +132,7 @@ export const translations = {
     'loading_reimagining_logo': 'Reimagining your logo...',
     'loading_generating_image': 'Conjuring pixels from the digital ether...',
     'loading_generating_script': 'We are preparing your script...',
+    'loading_analyzing_video': 'Analyzing video...',
 
     // Online/Offline Status
     'online_banner_back': 'Back online! Your queued jobs will now be processed.',
@@ -268,6 +273,25 @@ export const translations = {
     'video_edit_exporting': 'Exporting...',
     'video_edit_output_title': 'Your Edited Video',
     'video_edit_processing_message': 'Your video is being processed. Please wait...',
+
+    // Video Analyzer
+    'video_analyzer_title': 'Video Analyzer',
+    'video_analyzer_upload_title': 'Analyze Your Video',
+    'video_analyzer_upload_desc': 'Upload a video to instantly generate summaries, flashcards, or marketing highlights.',
+    'video_analyzer_upload_cta': 'Choose Video File',
+    'video_analyzer_change_video': 'Change Video',
+    'video_analyzer_analysis_type': 'Type of Analysis',
+    'video_analyzer_type_summary': 'Summary',
+    'video_analyzer_type_flashcards': 'Flashcards',
+    'video_analyzer_type_highlights': 'Marketing Highlights',
+    'video_analyzer_button_analyze': 'Analyze Video',
+    'video_analyzer_button_analyzing': 'Analyzing...',
+    'video_analyzer_output_title': 'Analysis Result',
+    'video_analyzer_output_placeholder': 'Your video analysis will appear here.',
+    'video_analyzer_progress_extracting': 'Extracting frames from video...',
+    'video_analyzer_progress_analyzing': 'AI is analyzing video content...',
+    'error_upload_video_to_analyze': 'Please upload a video to analyze.',
+    'error_failed_to_load_video': 'Failed to load video file.',
   },
   so: {
     // General
@@ -312,6 +336,7 @@ export const translations = {
     'sidebar_edit_video': 'Beddel Muuqaalka',
     'sidebar_settings': 'Habaynka',
     'sidebar_footer': 'Waxaa farsameeyay SAHAN TEAM',
+    'sidebar_video_analyzer': 'Falanqeeye',
 
     // Home Page
     'home_title_1': 'Ku soo dhawoow',
@@ -333,6 +358,9 @@ export const translations = {
     'home_card_video_edit_desc': 'Soo geli oo wax ka beddel muuqaalladaada adoo isticmaalaya qalabka jarista iyo qoraallada.',
     'home_card_settings_title': 'Habaynka',
     'home_card_settings_desc': 'Habee habaynka barnaamijka iyo furayaasha API.',
+    'home_card_video_analyzer_title': 'Falanqeeyaha Muuqaalka',
+    'home_card_video_analyzer_desc': 'Soo geli muuqaal si aad u abuurto soo koobitaanno, kaararka flash-ka, ama qodobbada suuq-geynta.',
+
 
     // Settings Page
     'settings_title': 'Habaynka',
@@ -398,6 +426,7 @@ export const translations = {
     'loading_reimagining_logo': 'Dib u qiyaasidda astaantaada...',
     'loading_generating_image': 'Ka sixraya pixels ka ether-ka dhijitaalka ah...',
     'loading_generating_script': 'Waanu diyaarinaynaa qoraalkaaga...',
+    'loading_analyzing_video': 'Falanqaynta muuqaalka...',
 
     // Online/Offline Status
     'online_banner_back': 'Dib ugu soo laabatay khadka! Shaqooyinkaaga safka ku jiray hadda waa la fulin doonaa.',
@@ -538,6 +567,25 @@ export const translations = {
     'video_edit_exporting': 'Waa la dhoofinayaa...',
     'video_edit_output_title': 'Muuqaalkaaga La Tafatiray',
     'video_edit_processing_message': 'Muuqaalkaaga waa la shaqeynayaa. Fadlan sug...',
+
+    // Video Analyzer
+    'video_analyzer_title': 'Falanqeeyaha Muuqaalka',
+    'video_analyzer_upload_title': 'Falanqee Muuqaalkaaga',
+    'video_analyzer_upload_desc': 'Soo geli muuqaal si aad isla markiiba u abuurto soo koobitaanno, kaararka flash-ka, ama qodobbada suuq-geynta.',
+    'video_analyzer_upload_cta': 'Dooro Faylka Muuqaalka',
+    'video_analyzer_change_video': 'Beddel Muuqaalka',
+    'video_analyzer_analysis_type': 'Nooca Falanqaynta',
+    'video_analyzer_type_summary': 'Soo koobid',
+    'video_analyzer_type_flashcards': 'Kaararka Flash-ka',
+    'video_analyzer_type_highlights': 'Qodobbada Suuq-geynta',
+    'video_analyzer_button_analyze': 'Falanqee Muuqaalka',
+    'video_analyzer_button_analyzing': 'Waa la falanqaynayaa...',
+    'video_analyzer_output_title': 'Natiijada Falanqaynta',
+    'video_analyzer_output_placeholder': 'Falanqaynta muuqaalkaagu halkan ayay ka soo muuqan doontaa.',
+    'video_analyzer_progress_extracting': 'Ka soo saarista sawirrada muuqaalka...',
+    'video_analyzer_progress_analyzing': 'AI wuxuu falanqaynayaa nuxurka muuqaalka...',
+    'error_upload_video_to_analyze': 'Fadlan soo geli muuqaal si aad u falanqayso.',
+    'error_failed_to_load_video': 'Ku guuldareystay in la soo shubo faylka muuqaalka.',
   },
   ar: {
     // General
@@ -582,6 +630,7 @@ export const translations = {
     'sidebar_edit_video': 'تحرير الفيديو',
     'sidebar_settings': 'الإعدادات',
     'sidebar_footer': 'بدعم من فريق SAHAN',
+    'sidebar_video_analyzer': 'محلل',
 
     // Home Page
     'home_title_1': 'أهلاً بك في',
@@ -603,6 +652,8 @@ export const translations = {
     'home_card_video_edit_desc': 'حمّل وحرر مقاطع الفيديو الخاصة بك باستخدام أدوات القص وتراكبات النصوص.',
     'home_card_settings_title': 'الإعدادات',
     'home_card_settings_desc': 'تكوين إعدادات التطبيق ومفاتيح API.',
+    'home_card_video_analyzer_title': 'محلل الفيديو',
+    'home_card_video_analyzer_desc': 'حمّل فيديو لإنشاء ملخصات أو بطاقات تعليمية أو أبرز النقاط التسويقية.',
 
     // Settings Page
     'settings_title': 'الإعدادات',
@@ -668,6 +719,7 @@ export const translations = {
     'loading_reimagining_logo': 'جاري إعادة تصور شعارك...',
     'loading_generating_image': 'استحضار البكسلات من الأثير الرقمي...',
     'loading_generating_script': 'نحن نعد النص الخاص بك...',
+    'loading_analyzing_video': 'جاري تحليل الفيديو...',
     
     // Online/Offline Status
     'online_banner_back': 'متصل بالإنترنت مجددًا! ستتم معالجة مهامك الموجودة في قائمة الانتظار الآن.',
@@ -808,5 +860,24 @@ export const translations = {
     'video_edit_exporting': 'جاري التصدير...',
     'video_edit_output_title': 'الفيديو المعدل الخاص بك',
     'video_edit_processing_message': 'جاري معالجة الفيديو الخاص بك. الرجاء الانتظار...',
+
+    // Video Analyzer
+    'video_analyzer_title': 'محلل الفيديو',
+    'video_analyzer_upload_title': 'حلل الفيديو الخاص بك',
+    'video_analyzer_upload_desc': 'حمّل فيديو لإنشاء ملخصات أو بطاقات تعليمية أو أبرز النقاط التسويقية على الفور.',
+    'video_analyzer_upload_cta': 'اختر ملف الفيديو',
+    'video_analyzer_change_video': 'تغيير الفيديو',
+    'video_analyzer_analysis_type': 'نوع التحليل',
+    'video_analyzer_type_summary': 'ملخص',
+    'video_analyzer_type_flashcards': 'بطاقات تعليمية',
+    'video_analyzer_type_highlights': 'أبرز النقاط التسويقية',
+    'video_analyzer_button_analyze': 'تحليل الفيديو',
+    'video_analyzer_button_analyzing': 'جاري التحليل...',
+    'video_analyzer_output_title': 'نتيجة التحليل',
+    'video_analyzer_output_placeholder': 'سيظهر تحليل الفيديو الخاص بك هنا.',
+    'video_analyzer_progress_extracting': 'استخراج الإطارات من الفيديو...',
+    'video_analyzer_progress_analyzing': 'يقوم الذكاء الاصطناعي بتحليل محتوى الفيديو...',
+    'error_upload_video_to_analyze': 'الرجاء تحميل فيديو لتحليله.',
+    'error_failed_to_load_video': 'فشل تحميل ملف الفيديو.',
   },
 };

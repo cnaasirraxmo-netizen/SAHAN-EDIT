@@ -338,3 +338,34 @@ export const extendVideo = async (
 
     return pollAndFetchVideo(operation, ai, onProgress);
 };
+
+export const analyzeVideoFrames = async (prompt: string, frames: string[]): Promise<string> => {
+    if (!navigator.onLine) {
+        throw new Error("You must be online to analyze videos.");
+    }
+    
+    return withRetry(async () => {
+        const ai = getGenAIClient();
+        
+        const imageParts = frames.map(frame => ({
+            inlineData: {
+                data: frame,
+                mimeType: 'image/jpeg',
+            },
+        }));
+
+        const contents = {
+            parts: [
+                { text: prompt },
+                ...imageParts
+            ],
+        };
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: contents,
+        });
+
+        return response.text.trim();
+    });
+};

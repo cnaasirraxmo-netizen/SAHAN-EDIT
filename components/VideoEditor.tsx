@@ -59,7 +59,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
                 }
             });
             await ffmpegInstance.load({
-                coreURL: "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js"
+                coreURL: "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.js"
             });
             setFfmpeg(ffmpegInstance);
             setIsLoading(false);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../types';
-import { SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, ArrowRightIcon, SwatchIcon, ClipboardDocumentListIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, ArrowRightIcon, SwatchIcon, ClipboardDocumentListIcon, PhotoIcon, DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 // FIX: Import translations to define a type for translation keys.
 import { translations } from '../services/i18n';
@@ -50,16 +50,34 @@ export const Home: React.FC<HomeProps> = ({ setPage }) => {
         descriptionKey: TranslationKey;
     }[] = [
         {
-            page: Page.LOGO_GEN,
-            icon: <SparklesIcon className="w-6 h-6" />,
-            titleKey: 'home_card_logo_gen_title',
-            descriptionKey: 'home_card_logo_gen_desc',
+            page: Page.VIDEO_PROMPT_GEN,
+            icon: <ClipboardDocumentListIcon className="w-6 h-6" />,
+            titleKey: 'home_card_video_script_title',
+            descriptionKey: 'home_card_video_script_desc',
         },
         {
             page: Page.LOGO_EDIT,
             icon: <SwatchIcon className="w-6 h-6" />,
             titleKey: 'home_card_logo_edit_title',
             descriptionKey: 'home_card_logo_edit_desc',
+        },
+        {
+            page: Page.LOGO_GEN,
+            icon: <SparklesIcon className="w-6 h-6" />,
+            titleKey: 'home_card_logo_gen_title',
+            descriptionKey: 'home_card_logo_gen_desc',
+        },
+         {
+            page: Page.VIDEO_ANALYZER,
+            icon: <DocumentMagnifyingGlassIcon className="w-6 h-6" />,
+            titleKey: 'home_card_video_analyzer_title',
+            descriptionKey: 'home_card_video_analyzer_desc',
+        },
+        {
+            page: Page.VIDEO_EDIT,
+            icon: <FilmIcon className="w-6 h-6" />,
+            titleKey: 'home_card_video_edit_title',
+            descriptionKey: 'home_card_video_edit_desc',
         },
         {
             page: Page.IMAGE_GEN,
@@ -74,22 +92,10 @@ export const Home: React.FC<HomeProps> = ({ setPage }) => {
             descriptionKey: 'home_card_image_edit_desc',
         },
         {
-            page: Page.VIDEO_PROMPT_GEN,
-            icon: <ClipboardDocumentListIcon className="w-6 h-6" />,
-            titleKey: 'home_card_video_script_title',
-            descriptionKey: 'home_card_video_script_desc',
-        },
-        {
             page: Page.VIDEO_GEN,
             icon: <VideoCameraIcon className="w-6 h-6" />,
             titleKey: 'home_card_video_gen_title',
             descriptionKey: 'home_card_video_gen_desc',
-        },
-        {
-            page: Page.VIDEO_EDIT,
-            icon: <FilmIcon className="w-6 h-6" />,
-            titleKey: 'home_card_video_edit_title',
-            descriptionKey: 'home_card_video_edit_desc',
         },
         {
             page: Page.SETTINGS,

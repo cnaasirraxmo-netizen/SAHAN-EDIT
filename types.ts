@@ -8,6 +8,7 @@ export enum Page {
   VIDEO_EDIT = 'VIDEO_EDIT',
   VIDEO_PROMPT_GEN = 'VIDEO_PROMPT_GEN',
   SETTINGS = 'SETTINGS',
+  VIDEO_ANALYZER = 'VIDEO_ANALYZER',
 }
 
 export type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";

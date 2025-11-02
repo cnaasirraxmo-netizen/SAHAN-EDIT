@@ -11,6 +11,7 @@ import { VideoGenerator } from './components/VideoGenerator';
 import { VideoEditor } from './components/VideoEditor';
 import { Settings } from './components/Settings';
 import { VideoPromptGenerator } from './components/VideoPromptGenerator';
+import { VideoAnalyzer } from './components/VideoAnalyzer';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { initDB } from './services/idb';
 import { processSyncQueue } from './services/syncService';
@@ -18,8 +19,8 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { AuthModal } from './components/auth/AuthModal';
 import type { Video } from '@google/genai';
-import { HomeIcon, ClipboardDocumentListIcon, SparklesIcon, FilmIcon } from '@heroicons/react/24/outline';
-import { HomeIcon as HomeIconSolid, ClipboardDocumentListIcon as ClipboardDocumentListIconSolid, SparklesIcon as SparklesIconSolid, FilmIcon as FilmIconSolid } from '@heroicons/react/24/solid';
+import { HomeIcon, ClipboardDocumentListIcon, SparklesIcon, FilmIcon, ViewfinderCircleIcon } from '@heroicons/react/24/outline';
+import { HomeIcon as HomeIconSolid, ClipboardDocumentListIcon as ClipboardDocumentListIconSolid, SparklesIcon as SparklesIconSolid, FilmIcon as FilmIconSolid, ViewfinderCircleIcon as ViewfinderCircleIconSolid } from '@heroicons/react/24/solid';
 
 
 const OnlineStatusBanner: React.FC<{ isOnline: boolean }> = ({ isOnline }) => {
@@ -89,10 +90,16 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ page, setPage }) => {
             IconSolid: SparklesIconSolid,
         },
         {
-            targetPage: Page.VIDEO_EDIT,
-            label: t('sidebar_edit_video'),
+            targetPage: Page.VIDEO_GEN,
+            label: t('sidebar_generate_video'),
             Icon: FilmIcon,
             IconSolid: FilmIconSolid,
+        },
+        {
+            targetPage: Page.VIDEO_ANALYZER,
+            label: t('sidebar_video_analyzer'),
+            Icon: ViewfinderCircleIcon,
+            IconSolid: ViewfinderCircleIconSolid,
         }
     ];
 
@@ -153,9 +160,11 @@ const AppContent: React.FC = () => {
       case Page.VIDEO_GEN:
         return <VideoGenerator setPage={setPage} setVideoContext={setVideoContext} />;
       case Page.VIDEO_EDIT:
-        return <VideoEditor setPage={setPage} videoContext={videoContext} setVideoContext={setVideoContext} />;
+        return <VideoEditor setPage={setPage} />;
       case Page.VIDEO_PROMPT_GEN:
         return <VideoPromptGenerator setPage={setPage} />;
+       case Page.VIDEO_ANALYZER:
+        return <VideoAnalyzer setPage={setPage} />;
       case Page.SETTINGS:
         return <Settings />;
       default:
