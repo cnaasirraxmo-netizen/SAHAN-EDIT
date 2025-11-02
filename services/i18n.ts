@@ -65,7 +65,7 @@ export const translations = {
     'home_card_settings_title': 'Settings',
     'home_card_settings_desc': 'Configure application settings and API keys.',
     'home_card_video_analyzer_title': 'Video Analyzer',
-    'home_card_video_analyzer_desc': 'Upload a video to generate summaries, flashcards, or marketing highlights.',
+    'home_card_video_analyzer_desc': 'Analyze a video from a file or URL. Generate summaries, flashcards, highlights, or transcribe audio to text.',
 
 
     // Settings Page
@@ -292,6 +292,11 @@ export const translations = {
     'video_analyzer_progress_analyzing': 'AI is analyzing video content...',
     'error_upload_video_to_analyze': 'Please upload a video to analyze.',
     'error_failed_to_load_video': 'Failed to load video file.',
+    'video_analyzer_from_url_label': 'Or analyze from a video URL',
+    'video_analyzer_url_placeholder': 'Paste video URL here (direct link only)',
+    'video_analyzer_type_transcription': 'Transcription',
+    'error_invalid_video_url': "Could not fetch video from the provided URL. Please ensure it's a direct, CORS-enabled link.",
+    'video_analyzer_progress_transcribing': 'Transcribing video audio...',
   },
   so: {
     // General
@@ -359,7 +364,7 @@ export const translations = {
     'home_card_settings_title': 'Habaynka',
     'home_card_settings_desc': 'Habee habaynka barnaamijka iyo furayaasha API.',
     'home_card_video_analyzer_title': 'Falanqeeyaha Muuqaalka',
-    'home_card_video_analyzer_desc': 'Soo geli muuqaal si aad u abuurto soo koobitaanno, kaararka flash-ka, ama qodobbada suuq-geynta.',
+    'home_card_video_analyzer_desc': 'Ka falanqee muuqaal fayl ama URL ah. Samee soo koobitaanno, kaararka flash-ka, qodobbada suuq-geynta, ama codka u beddel qoraal.',
 
 
     // Settings Page
@@ -586,6 +591,11 @@ export const translations = {
     'video_analyzer_progress_analyzing': 'AI wuxuu falanqaynayaa nuxurka muuqaalka...',
     'error_upload_video_to_analyze': 'Fadlan soo geli muuqaal si aad u falanqayso.',
     'error_failed_to_load_video': 'Ku guuldareystay in la soo shubo faylka muuqaalka.',
+    'video_analyzer_from_url_label': 'Ama ka falanqee URL muuqaal ah',
+    'video_analyzer_url_placeholder': 'Halkan ku dheji URL-ka muuqaalka (link toos ah kaliya)',
+    'video_analyzer_type_transcription': 'Qoraal-u-rogis',
+    'error_invalid_video_url': "Lama soo dejin karin muuqaalka URL-ka la bixiyay. Fadlan hubi inay tahay link toos ah oo CORS-enabled ah.",
+    'video_analyzer_progress_transcribing': 'U beddelidda codka muuqaalka qoraal...',
   },
   ar: {
     // General
@@ -653,7 +663,7 @@ export const translations = {
     'home_card_settings_title': 'الإعدادات',
     'home_card_settings_desc': 'تكوين إعدادات التطبيق ومفاتيح API.',
     'home_card_video_analyzer_title': 'محلل الفيديو',
-    'home_card_video_analyzer_desc': 'حمّل فيديو لإنشاء ملخصات أو بطاقات تعليمية أو أبرز النقاط التسويقية.',
+    'home_card_video_analyzer_desc': 'حلل مقطع فيديو من ملف أو رابط. أنشئ ملخصات أو بطاقات تعليمية أو أبرز النقاط التسويقية أو قم بتحويل الصوت إلى نص.',
 
     // Settings Page
     'settings_title': 'الإعدادات',
@@ -879,5 +889,10 @@ export const translations = {
     'video_analyzer_progress_analyzing': 'يقوم الذكاء الاصطناعي بتحليل محتوى الفيديو...',
     'error_upload_video_to_analyze': 'الرجاء تحميل فيديو لتحليله.',
     'error_failed_to_load_video': 'فشل تحميل ملف الفيديو.',
+    'video_analyzer_from_url_label': 'أو قم بالتحليل من رابط فيديو',
+    'video_analyzer_url_placeholder': 'الصق رابط الفيديو هنا (رابط مباشر فقط)',
+    'video_analyzer_type_transcription': 'تحويل إلى نص',
+    'error_invalid_video_url': "تعذر جلب الفيديو من الرابط المقدم. يرجى التأكد من أنه رابط مباشر وممكّن لـ CORS.",
+    'video_analyzer_progress_transcribing': 'جاري تحويل صوت الفيديو إلى نص...',
   },
 };

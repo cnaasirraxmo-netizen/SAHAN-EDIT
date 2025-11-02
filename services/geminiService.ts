@@ -369,3 +369,32 @@ export const analyzeVideoFrames = async (prompt: string, frames: string[]): Prom
         return response.text.trim();
     });
 };
+
+export const transcribeVideo = async (videoBase64: string, mimeType: string): Promise<string> => {
+    if (!navigator.onLine) {
+        throw new Error("You must be online to transcribe videos.");
+    }
+
+    return withRetry(async () => {
+        const ai = getGenAIClient();
+        
+        // The Gemini 2.5 Pro model is advanced and can handle video input for various tasks.
+        // We prompt it specifically to perform audio transcription from the video file.
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-pro',
+            contents: {
+                parts: [
+                    { text: "Transcribe the full audio from this video. Provide only the transcribed text, without any additional commentary or labels." },
+                    {
+                        inlineData: {
+                            data: videoBase64,
+                            mimeType: mimeType,
+                        },
+                    }
+                ],
+            },
+        });
+
+        return response.text.trim();
+    });
+};

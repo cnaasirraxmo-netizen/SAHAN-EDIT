@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Page } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { analyzeVideoFrames } from '../services/geminiService';
+import { analyzeVideoFrames, transcribeVideo } from '../services/geminiService';
 import { ApiKeyError } from './common/ApiKeyError';
 import { LoadingSpinner } from './common/LoadingSpinner';
 import { ArrowUpTrayIcon, DocumentMagnifyingGlassIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 
-type AnalysisType = 'summary' | 'flashcards' | 'highlights';
+type AnalysisType = 'summary' | 'flashcards' | 'highlights' | 'transcription';
 
 interface VideoAnalyzerProps {
     setPage: (page: Page) => void;
@@ -16,6 +16,7 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
     const { t } = useLanguage();
 
     const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [videoUrl, setVideoUrl] = useState<string>('');
     const [videoSrc, setVideoSrc] = useState<string | null>(null);
     const [analysisType, setAnalysisType] = useState<AnalysisType>('summary');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -30,9 +31,10 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
 
     // Clean up object URL when component unmounts or video changes
     useEffect(() => {
+        const currentVideoSrc = videoSrc;
         return () => {
-            if (videoSrc) {
-                URL.revokeObjectURL(videoSrc);
+            if (currentVideoSrc) {
+                URL.revokeObjectURL(currentVideoSrc);
             }
         };
     }, [videoSrc]);
@@ -41,15 +43,36 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
         const file = event.target.files?.[0];
         if (file) {
             setVideoFile(file);
+            setVideoUrl(''); // Clear URL input
             setVideoSrc(URL.createObjectURL(file));
             setResult(null);
             setError(null);
         }
     };
     
+    const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const url = event.target.value;
+        setVideoUrl(url);
+        if (url) {
+            setVideoFile(null); // Clear file input
+            if (videoSrc) URL.revokeObjectURL(videoSrc);
+            setVideoSrc(null); // Clear video player
+        }
+    };
+
+    const fileToGenerativePart = async (file: File): Promise<{ base64: string; mimeType: string }> => {
+        const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve((reader.result as string).split(',')[1]);
+            reader.onerror = (error) => reject(error);
+        });
+        return { base64, mimeType: file.type };
+    };
+
     const extractFrames = (maxFrames: number = 16): Promise<string[]> => {
       return new Promise((resolve, reject) => {
-        if (!videoRef.current || !canvasRef.current || !videoFile) {
+        if (!videoRef.current || !canvasRef.current) {
           return reject(new Error("Video or canvas element not ready."));
         }
         const video = videoRef.current;
@@ -110,28 +133,64 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
     };
 
     const handleAnalyze = async () => {
-        if (!videoFile) {
-            setError(t('error_upload_video_to_analyze'));
-            return;
-        }
-
         setIsLoading(true);
         setError(null);
         setResult(null);
-        setProgressMessage(t('video_analyzer_progress_extracting'));
+
+        let fileToProcess: File | null = videoFile;
+
+        // If a URL is provided, fetch it as a file
+        if (videoUrl && !videoFile) {
+            try {
+                setProgressMessage(t('video_analyzer_progress_downloading' as any)); // You might need to add this key
+                const response = await fetch(videoUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const blob = await response.blob();
+                fileToProcess = new File([blob], 'video_from_url', { type: blob.type });
+                setVideoSrc(URL.createObjectURL(blob)); // Show preview for URL video
+            } catch (err) {
+                console.error("Failed to fetch video from URL:", err);
+                setError(t('error_invalid_video_url'));
+                setIsLoading(false);
+                return;
+            }
+        }
+
+        if (!fileToProcess) {
+            setError(t('error_upload_video_to_analyze'));
+            setIsLoading(false);
+            return;
+        }
 
         try {
-            const frames = await extractFrames();
-            
-            setProgressMessage(t('video_analyzer_progress_analyzing'));
-            
-            const prompt = getPromptForAnalysis(analysisType);
-            const analysisResult = await analyzeVideoFrames(prompt, frames);
-            
-            setResult(analysisResult);
+            if (analysisType === 'transcription') {
+                setProgressMessage(t('video_analyzer_progress_transcribing'));
+                const { base64, mimeType } = await fileToGenerativePart(fileToProcess);
+                const transcriptionResult = await transcribeVideo(base64, mimeType);
+                setResult(transcriptionResult);
+            } else {
+                setProgressMessage(t('video_analyzer_progress_extracting'));
+                // Wait for video element to be ready, especially for URL-fetched videos
+                 await new Promise<void>((resolve, reject) => {
+                    if (!videoRef.current) return reject(new Error("Video element not available"));
+                    if (videoRef.current.readyState >= 1) { // HAVE_METADATA
+                        resolve();
+                    } else {
+                        videoRef.current.onloadeddata = () => resolve();
+                        videoRef.current.onerror = () => reject(new Error("Failed to load video for frame extraction"));
+                    }
+                });
+                const frames = await extractFrames();
+                setProgressMessage(t('video_analyzer_progress_analyzing'));
+                const prompt = getPromptForAnalysis(analysisType);
+                const analysisResult = await analyzeVideoFrames(prompt, frames);
+                setResult(analysisResult);
+            }
         } catch (err) {
-            setError(err instanceof Error ? err.message : t('error_unknown'));
-            console.error(err);
+             setError(err instanceof Error ? err.message : t('error_unknown'));
+             console.error(err);
         } finally {
             setIsLoading(false);
             setProgressMessage('');
@@ -146,6 +205,15 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
         }
     };
 
+    const resetState = () => {
+        setVideoFile(null);
+        setVideoUrl('');
+        if(videoSrc) URL.revokeObjectURL(videoSrc);
+        setVideoSrc(null);
+        setResult(null);
+        setError(null);
+    }
+
     const UploadPlaceholder = () => (
         <div className="flex flex-col items-center justify-center text-center h-full min-h-[60vh] bg-zinc-800/50 p-8 rounded-xl border-2 border-dashed border-zinc-700">
             <DocumentMagnifyingGlassIcon className="w-16 h-16 text-zinc-500" />
@@ -156,10 +224,28 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
                 <span>{t('video_analyzer_upload_cta')}</span>
             </button>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="video/*" className="hidden" />
+
+            <div className="my-6 w-full max-w-sm flex items-center">
+                <div className="flex-grow border-t border-zinc-700"></div>
+                <span className="flex-shrink mx-4 text-zinc-500 text-sm">OR</span>
+                <div className="flex-grow border-t border-zinc-700"></div>
+            </div>
+
+            <div className="w-full max-w-sm">
+                 <label htmlFor="video-url" className="block text-sm font-medium text-zinc-300 mb-2">{t('video_analyzer_from_url_label')}</label>
+                 <input
+                    id="video-url"
+                    type="url"
+                    value={videoUrl}
+                    onChange={handleUrlChange}
+                    placeholder={t('video_analyzer_url_placeholder')}
+                    className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                />
+            </div>
         </div>
     );
     
-    if (!videoFile) {
+    if (!videoFile && !videoUrl) {
         return <UploadPlaceholder />;
     }
 
@@ -167,7 +253,7 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
         <div className="space-y-6">
             <div className="flex justify-between items-center flex-wrap gap-4">
                  <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">{t('video_analyzer_title')}</h2>
-                 <button onClick={() => setVideoFile(null)} className="bg-zinc-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-zinc-600 transition-colors text-sm">
+                 <button onClick={resetState} className="bg-zinc-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-zinc-600 transition-colors text-sm">
                     {t('video_analyzer_change_video')}
                  </button>
             </div>
@@ -176,14 +262,20 @@ export const VideoAnalyzer: React.FC<VideoAnalyzerProps> = ({ setPage }) => {
                 {/* Left Side: Video & Controls */}
                 <div className="space-y-4">
                     <div className="w-full aspect-video bg-black rounded-lg overflow-hidden border border-zinc-700">
-                        <video ref={videoRef} src={videoSrc ?? ''} controls className="w-full h-full" />
+                        {videoSrc ? (
+                            <video ref={videoRef} src={videoSrc} controls className="w-full h-full" />
+                        ) : (
+                             <div className="w-full h-full flex items-center justify-center text-zinc-500 p-4">
+                                <span>{t('video_analyzer_url_placeholder')}</span>
+                             </div>
+                        )}
                         <canvas ref={canvasRef} className="hidden" />
                     </div>
 
                     <div className="bg-zinc-800/50 p-4 rounded-lg border border-zinc-700 space-y-3">
                         <label className="block text-lg font-semibold text-zinc-300">{t('video_analyzer_analysis_type')}</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            {(['summary', 'flashcards', 'highlights'] as AnalysisType[]).map(type => (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {(['summary', 'flashcards', 'highlights', 'transcription'] as AnalysisType[]).map(type => (
                                 <button
                                     key={type}
                                     onClick={() => setAnalysisType(type)}
