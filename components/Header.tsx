@@ -1,14 +1,19 @@
 import React from 'react';
-import { MagnifyingGlassIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, UserCircleIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { AnimatedLogo } from './common/AnimatedLogo';
+import { HeaderMenu } from './common/HeaderMenu';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { Page } from '../types';
 
 interface HeaderProps {
+    page: Page;
+    setPage: (page: Page) => void;
     onProfileClick: () => void;
+    onMenuClick: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onProfileClick }) => {
+export const Header: React.FC<HeaderProps> = ({ page, setPage, onProfileClick, onMenuClick }) => {
     const { t } = useLanguage();
     const { currentUser } = useAuth();
     
@@ -17,11 +22,28 @@ export const Header: React.FC<HeaderProps> = ({ onProfileClick }) => {
     return (
         <header className="fixed top-0 left-0 right-0 h-16 bg-zinc-800/90 backdrop-blur-md border-b border-zinc-700 z-50 flex items-center px-4 justify-between">
             <div className="flex items-center gap-4">
-                <AnimatedLogo />
+                <button 
+                    onClick={onMenuClick}
+                    className="p-2 -ml-2 rounded-full text-zinc-300 hover:text-white hover:bg-zinc-700 lg:hidden"
+                    aria-label="Open menu"
+                >
+                    <Bars3Icon className="w-6 h-6" />
+                </button>
+                <div className="hidden lg:block">
+                     <AnimatedLogo />
+                </div>
+            </div>
+
+            <div className="hidden lg:flex flex-1 items-center justify-center">
+                <HeaderMenu page={page} setPage={setPage} />
             </div>
             
-            <div className="flex-1 flex justify-center px-4">
-                <div className="w-full max-w-lg relative">
+            <div className="flex-1 flex justify-center px-4 lg:hidden">
+                 <AnimatedLogo />
+            </div>
+
+            <div className="flex items-center gap-2">
+                 <div className="w-full max-w-xs relative hidden md:block">
                     <input 
                         type="text" 
                         placeholder={t('header_search_placeholder')}
@@ -31,9 +53,6 @@ export const Header: React.FC<HeaderProps> = ({ onProfileClick }) => {
                          <MagnifyingGlassIcon className="w-5 h-5 text-zinc-500" />
                     </div>
                 </div>
-            </div>
-
-            <div className="flex items-center">
                 <button onClick={onProfileClick} className="p-2 rounded-full text-zinc-300 hover:text-white hover:bg-zinc-700">
                     <span className="sr-only">User profile</span>
                     {currentUser && userInitial ? (

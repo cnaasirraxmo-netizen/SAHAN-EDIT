@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Page } from './types';
 import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar';
 import { Home } from './components/Home';
 import { GenerateLogo } from './components/ImageGenerator';
 import { CinematicImageGenerator } from './components/CinematicImageGenerator';
@@ -104,7 +105,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ page, setPage }) => {
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 h-16 bg-zinc-800/90 backdrop-blur-md border-t border-zinc-700 z-50 flex items-stretch">
+        <nav className="fixed bottom-0 left-0 right-0 h-16 bg-zinc-800/90 backdrop-blur-md border-t border-zinc-700 z-50 flex items-stretch lg:hidden">
             {navItems.map(item => (
                 <NavItem
                     key={item.targetPage}
@@ -124,6 +125,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ page, setPage }) => {
 const AppContent: React.FC = () => {
   const [page, setPage] = useState<Page>(Page.HOME);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isOnline, wasOffline } = useOnlineStatus();
   const { language } = useLanguage();
   const [videoContext, setVideoContext] = useState<{ video: Video; url: string } | null>(null);
@@ -188,9 +190,15 @@ const AppContent: React.FC = () => {
       {bannerRoot && !isOnline && ReactDOM.createPortal(<OnlineStatusBanner isOnline={isOnline} />, bannerRoot)}
       {bannerRoot && isOnline && wasOffline && ReactDOM.createPortal(<OnlineStatusBanner isOnline={isOnline} />, bannerRoot)}
       
-      <Header onProfileClick={() => setIsAuthModalOpen(true)} />
+      <Header 
+        page={page}
+        setPage={handleSetPage}
+        onProfileClick={() => setIsAuthModalOpen(true)} 
+        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+      />
+      <Sidebar page={page} setPage={handleSetPage} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
-      <main className={`min-h-screen transition-padding duration-300 pb-20 ${!isOnline || (isOnline && wasOffline) ? 'pt-24' : 'pt-16'}`}>
+      <main className={`min-h-screen transition-all duration-300 pb-20 lg:pb-0 lg:pl-64 ${!isOnline || (isOnline && wasOffline) ? 'pt-24' : 'pt-16'}`}>
         <div className="p-4 sm:p-6 md:p-10 w-full max-w-7xl mx-auto">
            {renderPage()}
         </div>

@@ -30,6 +30,11 @@ export const translations = {
     
     // Header
     'header_search_placeholder': 'Search...',
+    'header_nav_logo': 'Logo',
+    'header_nav_image': 'Image',
+    'header_nav_script': 'Script',
+    'header_nav_video': 'Video',
+    'header_nav_analyzer': 'Analyzer',
 
     // Sidebar
     'sidebar_home': 'Home',
@@ -329,6 +334,11 @@ export const translations = {
 
     // Header
     'header_search_placeholder': 'Raadi...',
+    'header_nav_logo': 'Astaan',
+    'header_nav_image': 'Sawir',
+    'header_nav_script': 'Qoraal',
+    'header_nav_video': 'Muuqaal',
+    'header_nav_analyzer': 'Falanqeeye',
 
     // Sidebar
     'sidebar_home': 'Guriga',
@@ -628,6 +638,11 @@ export const translations = {
 
     // Header
     'header_search_placeholder': 'بحث...',
+    'header_nav_logo': 'شعار',
+    'header_nav_image': 'صورة',
+    'header_nav_script': 'نص',
+    'header_nav_video': 'فيديو',
+    'header_nav_analyzer': 'محلل',
 
     // Sidebar
     'sidebar_home': 'الرئيسية',

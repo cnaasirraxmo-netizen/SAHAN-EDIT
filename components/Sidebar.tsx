@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../types';
-import { HomeIcon, SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, SwatchIcon, ClipboardDocumentListIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, SwatchIcon, ClipboardDocumentListIcon, PhotoIcon, DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SidebarProps {
@@ -41,15 +41,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ page, setPage, isOpen, setIsOp
         { id: Page.VIDEO_PROMPT_GEN, text: t('sidebar_video_script'), icon: <ClipboardDocumentListIcon /> },
         { id: Page.VIDEO_GEN, text: t('sidebar_generate_video'), icon: <VideoCameraIcon /> },
         { id: Page.VIDEO_EDIT, text: t('sidebar_edit_video'), icon: <FilmIcon /> },
+        { id: Page.VIDEO_ANALYZER, text: t('sidebar_video_analyzer'), icon: <DocumentMagnifyingGlassIcon /> },
         { id: Page.SETTINGS, text: t('sidebar_settings'), icon: <Cog6ToothIcon /> },
     ];
+
+    const handleNavClick = (newPage: Page) => {
+        setPage(newPage);
+        setIsOpen(false);
+    };
 
     return (
         <>
             <aside className={`fixed top-0 left-0 rtl:right-0 rtl:left-auto h-full w-64 bg-zinc-800 text-zinc-300 border-r rtl:border-l rtl:border-r-0 border-zinc-700 z-40 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0 rtl:-translate-x-0' : '-translate-x-full rtl:translate-x-full'} lg:translate-x-0 lg:rtl:-translate-x-0`}>
                 <div className="flex flex-col h-full">
                     {/* This div pushes the content below the fixed header */}
-                    <div className="h-16 flex-shrink-0 lg:hidden"></div>
+                    <div className="h-16 flex-shrink-0"></div>
                     <nav className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
                         {navItems.map(item => (
                             <NavLink
@@ -57,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ page, setPage, isOpen, setIsOp
                                 icon={item.icon}
                                 text={item.text}
                                 isActive={page === item.id}
-                                onClick={() => setPage(item.id)}
+                                onClick={() => handleNavClick(item.id)}
                             />
                         ))}
                     </nav>
