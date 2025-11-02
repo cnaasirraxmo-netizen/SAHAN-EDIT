@@ -41,7 +41,7 @@ export const getApiKey = (service: string): string | null => {
 };
 // --- END: API Key Management ---
 
-const getGenAIClient = () => {
+export const getGenAIClient = () => {
     const apiKey = getApiKey('gemini');
     if (!apiKey) {
         throw new Error("Google Gemini API Key not found. Please set your API key in the Settings page.");

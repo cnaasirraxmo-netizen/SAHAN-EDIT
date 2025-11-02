@@ -1,132 +1,209 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { Page } from '../types';
-import { SparklesIcon, PaintBrushIcon, VideoCameraIcon, FilmIcon, Cog6ToothIcon, ArrowRightIcon, SwatchIcon, ClipboardDocumentListIcon, PhotoIcon, DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import {
+    SparklesIcon,
+    LightBulbIcon,
+    PencilIcon,
+    CodeBracketIcon,
+    PhotoIcon,
+    DocumentMagnifyingGlassIcon,
+    PaperAirplaneIcon,
+    PlusIcon,
+} from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
-// FIX: Import translations to define a type for translation keys.
-import { translations } from '../services/i18n';
-
-// FIX: Define a type for valid translation keys.
-type TranslationKey = keyof typeof translations.en;
+import { getGenAIClient } from '../services/geminiService';
+import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+import { marked } from 'marked';
+import { ApiKeyError } from './common/ApiKeyError';
+import { AnimatedLogo } from './common/AnimatedLogo';
 
 interface HomeProps {
     setPage: (page: Page) => void;
 }
 
-const ToolCard: React.FC<{
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    onClick: () => void;
-    t: (key: string) => string;
-}> = ({ icon, title, description, onClick, t }) => (
-    <div 
-        onClick={onClick}
-        className="group relative bg-zinc-800 p-6 rounded-xl border border-zinc-700 hover:border-indigo-500/50 hover:bg-zinc-700/50 transition-all duration-300 cursor-pointer overflow-hidden"
-    >
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-indigo-600/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div className="relative">
-            <div className="mb-4 w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center border border-zinc-700 text-indigo-400">
-                {icon}
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-            <p className="text-zinc-400 mb-4">{description}</p>
-            <div className="flex items-center text-indigo-400 font-semibold">
-                {t('home_card_cta')}
-                <ArrowRightIcon className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0 transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-            </div>
-        </div>
-    </div>
-);
+type Message = {
+    role: 'user' | 'model';
+    content: string;
+};
 
+interface SuggestionChipProps {
+    icon: React.ReactNode;
+    text: string;
+    color: string;
+    onClick: () => void;
+}
+
+const SuggestionChip: React.FC<SuggestionChipProps> = ({ icon, text, color, onClick }) => (
+    <button
+        onClick={onClick}
+        className="p-3 bg-zinc-800 rounded-lg border border-zinc-700 text-left hover:bg-zinc-700/80 transition-colors duration-200 flex items-center gap-3"
+    >
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${color}`}>
+            {icon}
+        </div>
+        <span className="text-zinc-200 font-medium text-sm">{text}</span>
+    </button>
+);
 
 export const Home: React.FC<HomeProps> = ({ setPage }) => {
     const { t } = useLanguage();
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    // FIX: Add explicit type to the tools array to ensure keys are valid translation keys.
-    const tools: {
-        page: Page;
-        icon: React.ReactNode;
-        titleKey: TranslationKey;
-        descriptionKey: TranslationKey;
-    }[] = [
-        {
-            page: Page.VIDEO_PROMPT_GEN,
-            icon: <ClipboardDocumentListIcon className="w-6 h-6" />,
-            titleKey: 'home_card_video_script_title',
-            descriptionKey: 'home_card_video_script_desc',
-        },
-        {
-            page: Page.LOGO_EDIT,
-            icon: <SwatchIcon className="w-6 h-6" />,
-            titleKey: 'home_card_logo_edit_title',
-            descriptionKey: 'home_card_logo_edit_desc',
-        },
-        {
-            page: Page.LOGO_GEN,
-            icon: <SparklesIcon className="w-6 h-6" />,
-            titleKey: 'home_card_logo_gen_title',
-            descriptionKey: 'home_card_logo_gen_desc',
-        },
-         {
-            page: Page.VIDEO_ANALYZER,
-            icon: <DocumentMagnifyingGlassIcon className="w-6 h-6" />,
-            titleKey: 'home_card_video_analyzer_title',
-            descriptionKey: 'home_card_video_analyzer_desc',
-        },
-        {
-            page: Page.VIDEO_EDIT,
-            icon: <FilmIcon className="w-6 h-6" />,
-            titleKey: 'home_card_video_edit_title',
-            descriptionKey: 'home_card_video_edit_desc',
-        },
-        {
-            page: Page.IMAGE_GEN,
-            icon: <PhotoIcon className="w-6 h-6" />,
-            titleKey: 'home_card_image_gen_title',
-            descriptionKey: 'home_card_image_gen_desc',
-        },
-        {
-            page: Page.IMAGE_EDIT,
-            icon: <PaintBrushIcon className="w-6 h-6" />,
-            titleKey: 'home_card_image_edit_title',
-            descriptionKey: 'home_card_image_edit_desc',
-        },
-        {
-            page: Page.VIDEO_GEN,
-            icon: <VideoCameraIcon className="w-6 h-6" />,
-            titleKey: 'home_card_video_gen_title',
-            descriptionKey: 'home_card_video_gen_desc',
-        },
-        {
-            page: Page.SETTINGS,
-            icon: <Cog6ToothIcon className="w-6 h-6" />,
-            titleKey: 'home_card_settings_title',
-            descriptionKey: 'home_card_settings_desc',
+    const chatRef = useRef<Chat | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        try {
+            const ai = getGenAIClient();
+            chatRef.current = ai.chats.create({ model: 'gemini-2.5-flash' });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : t('error_unknown'));
         }
-    ];
+    }, [t]);
 
-    return (
-        <div className="space-y-10">
-            <header className="text-left rtl:text-right">
-                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white">
-                    {t('home_title_1')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-600">SAHAN edit</span>
-                </h1>
-                <p className="mt-4 text-lg text-zinc-400 max-w-2xl">
-                    {t('home_description')}
-                </p>
-            </header>
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, isLoading]);
+
+    const handleSend = async (prompt?: string) => {
+        const textToSend = prompt || input;
+        if (!textToSend.trim() || isLoading) return;
+
+        const newUserMessage: Message = { role: 'user', content: textToSend };
+        setMessages(prev => [...prev, newUserMessage]);
+        setInput('');
+        setIsLoading(true);
+        setError(null);
+        
+        try {
+            if (!chatRef.current) {
+                throw new Error("Chat session not initialized.");
+            }
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tools.map(tool => (
-                    <ToolCard
-                        key={tool.page}
-                        icon={tool.icon}
-                        title={t(tool.titleKey)}
-                        description={t(tool.descriptionKey)}
-                        onClick={() => setPage(tool.page)}
-                        t={t}
+            setMessages(prev => [...prev, { role: 'model', content: '' }]);
+
+            const stream = await chatRef.current.sendMessageStream({ message: textToSend });
+            
+            for await (const chunk of stream) {
+                const chunkText = chunk.text;
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1].content += chunkText;
+                    return newMessages;
+                });
+            }
+
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : t('error_unknown');
+            setError(errorMessage);
+            // Remove the empty model message on error
+            setMessages(prev => prev.filter((msg, index) => index !== prev.length - 1 || msg.content !== ''));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        handleSend();
+    };
+
+    const handleNewChat = () => {
+        setMessages([]);
+        setError(null);
+        try {
+            const ai = getGenAIClient();
+            chatRef.current = ai.chats.create({ model: 'gemini-2.5-flash' });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : t('error_unknown'));
+        }
+    };
+    
+    const welcomeSuggestions = [
+        { icon: <PhotoIcon className="w-5 h-5" />, text: "Create an image", color: "bg-green-500/20 text-green-300", action: () => setPage(Page.IMAGE_GEN) },
+        { icon: <DocumentMagnifyingGlassIcon className="w-5 h-5" />, text: "Analyze data", color: "bg-blue-500/20 text-blue-300", action: () => setPage(Page.VIDEO_ANALYZER) },
+        { icon: <PencilIcon className="w-5 h-5" />, text: "Help me write", color: "bg-purple-500/20 text-purple-300", action: () => handleSend("Help me write a short story about a space explorer.") },
+        { icon: <LightBulbIcon className="w-5 h-5" />, text: "Brainstorm ideas", color: "bg-yellow-500/20 text-yellow-300", action: () => handleSend("Brainstorm some names for a new coffee shop.") },
+    ];
+    
+    return (
+        <div className="flex flex-col h-[calc(100vh-10rem)] lg:h-[calc(100vh-6rem)]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                {messages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center text-center h-full">
+                        <AnimatedLogo />
+                        <h1 className="text-3xl font-bold text-zinc-200 mt-6 mb-4">What can I help with?</h1>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
+                            {welcomeSuggestions.map((item, index) => (
+                                <SuggestionChip key={index} {...item} onClick={item.action} />
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                   <>
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-xl lg:max-w-2xl px-4 py-3 rounded-2xl ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-zinc-800 text-zinc-200 rounded-bl-none'}`}>
+                                    <div 
+                                        className="prose prose-invert prose-sm max-w-none" 
+                                        dangerouslySetInnerHTML={{ __html: marked.parse(msg.content) }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        {isLoading && (
+                            <div className="flex justify-start">
+                                <div className="max-w-xl lg:max-w-2xl px-4 py-3 rounded-2xl bg-zinc-800 text-zinc-200 rounded-bl-none">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
+                                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse delay-150"></div>
+                                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse delay-300"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                   </>
+                )}
+            </div>
+
+            <div className="px-4 pb-4 w-full max-w-3xl mx-auto">
+                 {messages.length > 0 && 
+                    <div className="flex justify-center mb-2">
+                        <button onClick={handleNewChat} className="flex items-center gap-2 text-sm px-3 py-1.5 bg-zinc-700/50 hover:bg-zinc-700 text-zinc-300 rounded-lg transition-colors">
+                            <PlusIcon className="w-4 h-4" /> New Chat
+                        </button>
+                    </div>
+                }
+                 {error && (
+                    <div className="mb-2">
+                        {error.includes("API Key not found") ?
+                        <ApiKeyError message={error} setPage={setPage} /> :
+                        <p className="text-red-400 text-center text-sm">{error}</p>
+                        }
+                    </div>
+                )}
+                <form onSubmit={handleFormSubmit} className="relative">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Message SAHAN..."
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl py-3 pl-4 pr-14 text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow duration-200"
+                        disabled={isLoading}
                     />
-                ))}
+                    <button
+                        type="submit"
+                        disabled={!input.trim() || isLoading}
+                        className="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full text-zinc-400 hover:text-white disabled:hover:text-zinc-400 disabled:opacity-50 transition-colors"
+                        aria-label="Send message"
+                    >
+                        <PaperAirplaneIcon className="w-6 h-6" />
+                    </button>
+                </form>
             </div>
         </div>
     );
