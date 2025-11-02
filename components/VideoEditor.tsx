@@ -308,7 +308,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({ setPage }) => {
                                 <video src={processedVideoUrl} controls className="rounded-lg max-w-full max-h-[60vh] object-contain" />
                                 <a href={processedVideoUrl} download={`${videoFile.name.split('.')[0]}-edited.mp4`} className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center gap-2">
                                      <ArrowDownTrayIcon className="w-5 h-5" />
-                                    {t('button_download_edited_image')}
+                                    {t('button_download_edited_video')}
                                 </a>
                             </div>
                         ) : null}

@@ -1,15 +1,14 @@
 import React from 'react';
-import { Bars3Icon, MagnifyingGlassIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { AnimatedLogo } from './common/AnimatedLogo';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
-    onMenuClick: () => void;
     onProfileClick: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick, onProfileClick }) => {
+export const Header: React.FC<HeaderProps> = ({ onProfileClick }) => {
     const { t } = useLanguage();
     const { currentUser } = useAuth();
     
@@ -18,13 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onProfileClick }) =
     return (
         <header className="fixed top-0 left-0 right-0 h-16 bg-zinc-800/90 backdrop-blur-md border-b border-zinc-700 z-50 flex items-center px-4 justify-between">
             <div className="flex items-center gap-4">
-                <button onClick={onMenuClick} className="text-zinc-300 hover:text-white lg:hidden">
-                    <span className="sr-only">Open menu</span>
-                    <Bars3Icon className="w-6 h-6" />
-                </button>
-                <div className="hidden lg:block">
-                  <AnimatedLogo />
-                </div>
+                <AnimatedLogo />
             </div>
             
             <div className="flex-1 flex justify-center px-4">
